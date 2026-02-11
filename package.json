@@ -1,0 +1,12 @@
+{
+  "name": "gh-copilot-usage",
+  "private": true,
+  "type": "module",
+  "module": "usage.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
