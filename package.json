@@ -1,12 +1,38 @@
 {
   "name": "gh-copilot-usage",
-  "private": true,
+  "version": "1.0.0",
+  "description": "GitHub CLI extension to display GitHub Copilot premium request usage statistics",
   "type": "module",
-  "module": "usage.ts",
+  "license": "MIT",
+  "author": {
+    "name": "François Best",
+    "url": "https://francoisbest.com"
+  },
+  "repository": "franky47/gh-copilot-usage",
+  "keywords": [
+    "github",
+    "copilot",
+    "cli",
+    "usage",
+    "metrics",
+    "gh-extension"
+  ],
+  "files": [
+    "src",
+    "script",
+    "dist"
+  ],
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun build src/index.ts --compile --outfile ./dist/gh-copilot-usage",
+    "build:all": "./script/build.sh"
+  },
+  "packageManager": "bun@1.3.9",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "1.3.9"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "5.9.3"
   }
 }
