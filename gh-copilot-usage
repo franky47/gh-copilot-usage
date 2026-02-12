@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Wrapper script for gh-copilot-usage extension
+# This allows the extension to run as an interpreted script
+
+# Get the directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Check if bun is installed
+if ! command -v bun &> /dev/null; then
+    echo "Error: bun is required but not installed."
+    echo "Install it from: https://bun.sh"
+    exit 1
+fi
+
+# Run the TypeScript source with bun
+exec bun "${SCRIPT_DIR}/src/index.ts" "$@"

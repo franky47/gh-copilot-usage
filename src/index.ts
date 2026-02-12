@@ -2,9 +2,106 @@
 
 import { $ } from 'bun'
 import { styleText } from 'node:util'
+import pkgJson from '../package.json'
 
-// Configure this based on your plan's limits
-const LIMIT = 300 // premium requests per month (GitHub Copilot Pro)
+const VERSION = pkgJson.version
+
+// Parse command line arguments
+function parseArgs() {
+  const args = process.argv.slice(2)
+  let limit: number | undefined
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]
+
+    if (arg === '--help' || arg === '-h') {
+      console.log(`
+GitHub Copilot Premium Requests Usage Tracker v${VERSION}
+
+Usage:
+  gh copilot-usage [options]
+
+Options:
+  --limit <number>    Set the monthly premium request limit (default: 300)
+  --help, -h          Show this help message
+  --version, -v       Show version information
+
+Configuration:
+  The limit can be configured in multiple ways (in order of priority):
+    1. Command line flag: --limit 300
+    2. Environment variable: GH_COPILOT_LIMIT=300
+    3. gh config: gh config set copilot-usage.limit 300
+    4. Default: 300 (GitHub Copilot Pro)
+
+Examples:
+  gh copilot-usage
+  gh copilot-usage --limit 500
+  GH_COPILOT_LIMIT=500 gh copilot-usage
+`)
+      process.exit(0)
+    }
+
+    if (arg === '--version' || arg === '-v') {
+      console.log(`gh-copilot-usage v${VERSION}`)
+      process.exit(0)
+    }
+
+    if (arg === '--limit') {
+      if (i + 1 >= args.length) {
+        console.error('Error: --limit requires a numeric argument')
+        process.exit(1)
+      }
+      const nextArg = args[i + 1]
+      if (nextArg === undefined) {
+        console.error('Error: --limit requires a numeric argument')
+        process.exit(1)
+      }
+      const value = parseInt(nextArg, 10)
+      if (isNaN(value) || value <= 0) {
+        console.error('Error: --limit must be a positive number')
+        process.exit(1)
+      }
+      limit = value
+      i++ // Skip next arg
+    }
+  }
+
+  return { limit }
+}
+
+// Get limit from various sources (priority: CLI > env > gh config > default)
+async function getLimit(cliLimit?: number): Promise<number> {
+  // 1. CLI argument (highest priority)
+  if (cliLimit !== undefined) {
+    return cliLimit
+  }
+
+  // 2. Environment variable
+  const envLimit = process.env.GH_COPILOT_LIMIT
+  if (envLimit !== undefined) {
+    const parsed = parseInt(envLimit, 10)
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed
+    }
+  }
+
+  // 3. gh config
+  try {
+    const configValue = await $`gh config get copilot-usage.limit`.text()
+    const parsed = parseInt(configValue.trim(), 10)
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed
+    }
+  } catch {
+    // Config not set, continue to default
+  }
+
+  // 4. Default (GitHub Copilot Pro)
+  return 300
+}
+
+const { limit: cliLimit } = parseArgs()
+const LIMIT = await getLimit(cliLimit)
 
 // Layout
 const BOX_OUTER_WIDTH = Math.min(80, process.stdout.columns)

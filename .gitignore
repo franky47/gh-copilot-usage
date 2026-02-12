@@ -6,6 +6,10 @@ out
 dist
 *.tgz
 
+# compiled binaries (gh extension) - but keep the wrapper script
+gh-copilot-usage-*
+!gh-copilot-usage
+
 # code coverage
 coverage
 *.lcov
