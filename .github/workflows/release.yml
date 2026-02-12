@@ -6,7 +6,9 @@ on:
       - "v*"
 
 permissions:
-  contents: write
+  id-token: write      # Required for attestation signing
+  contents: write      # For creating releases
+  attestations: write  # Required for generating attestations
 
 jobs:
   release:
@@ -17,3 +19,7 @@ jobs:
       - uses: cli/gh-extension-precompile@9e2237c30f869ad3bcaed6a4be2cd43564dd421b # v2.1.0
         with:
           build_script_override: script/build.sh
+      - name: Attest build artifacts
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
+        with:
+          subject-path: 'dist/*'
