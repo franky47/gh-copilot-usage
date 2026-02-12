@@ -157,15 +157,14 @@ bun run build:all
 
 Releases are automated via GitHub Actions. To create a new release:
 
-1. Update the version in `src/index.ts` (the `VERSION` constant)
-2. Update the version in `package.json`
-3. Commit your changes
-4. Create and push a git tag:
+1. Update the version in `package.json`
+2. Commit your changes
+3. Create and push a git tag:
    ```bash
    git tag v1.0.1
    git push origin v1.0.1
    ```
-5. GitHub Actions will automatically:
+4. GitHub Actions will automatically:
    - Build binaries for all platforms (macOS, Linux, Windows)
    - Create a GitHub release
    - Attach the compiled binaries to the release
