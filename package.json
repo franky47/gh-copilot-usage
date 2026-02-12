@@ -30,6 +30,7 @@
     "build": "bun build src/index.ts --compile --outfile gh-copilot-usage",
     "build:all": "./script/build.sh"
   },
+  "packageManager": "bun@1.3.9",
   "devDependencies": {
     "@types/bun": "1.3.9"
   },

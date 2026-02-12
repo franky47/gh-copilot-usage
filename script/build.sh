@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# Install bun if not available
+# Fail the build if bun is not available
 if ! command -v bun &> /dev/null; then
-  echo "Installing bun..."
-  curl -fsSL https://bun.sh/install | bash
-  export PATH="$HOME/.bun/bin:$PATH"
+  echo "bun is not installed. Please install bun to continue."
+  exit 1
 fi
+
 
 # Install dependencies
 echo "Installing dependencies..."
