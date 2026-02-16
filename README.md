@@ -49,11 +49,17 @@ gh extension install .
 ## Usage
 
 ```bash
-# Basic usage (uses default or configured limit)
+# Basic usage (uses default plan and limit)
 gh copilot-usage
 
-# Specify a custom limit
+# Specify a plan (uses plan's default limit)
+gh copilot-usage --plan pro+
+
+# Specify a custom limit (overrides plan limit)
 gh copilot-usage --limit 500
+
+# Combine plan and custom limit (shows plan in UI, uses custom limit)
+gh copilot-usage --plan enterprise --limit 2000
 
 # Show help
 gh copilot-usage --help
@@ -64,39 +70,72 @@ gh copilot-usage --version
 
 ## Configuration
 
-The monthly premium request limit can be configured in multiple ways. The extension uses the following priority order:
+Both the plan and monthly premium request limit can be configured. The extension checks configuration sources in priority order for each setting independently.
+
+### Plan Configuration
+
+The plan determines which plan name appears in the UI and the default limit if no custom limit is set. The plan can be configured in the following priority order:
 
 1. **CLI flag** (highest priority)
 
    ```bash
-   gh copilot-usage --limit 300
+   gh copilot-usage --plan pro+
    ```
 
 2. **Environment variable**
 
    ```bash
-   export GH_COPILOT_LIMIT=300
+   export GH_COPILOT_PLAN=pro+
    gh copilot-usage
    ```
 
 3. **gh config**
 
    ```bash
-   gh config set copilot-usage.limit 300
+   gh config set copilot-usage.plan pro+
    gh copilot-usage
    ```
 
-4. **Default value** (300 for GitHub Copilot Pro)
+4. **Default value** (Pro)
    ```bash
    gh copilot-usage
    ```
 
-### Plan Limits
+### Limit Configuration
 
-Configure based on your GitHub Copilot plan:
+The monthly premium request limit can be configured separately and will override the plan's default limit. The limit uses the following priority order:
 
-- **Copilot Pro**: 300 premium requests/month (default)
-- **Copilot Business/Enterprise**: Contact your organization admin for your limit
+1. **CLI flag** (highest priority)
+
+   ```bash
+   gh copilot-usage --limit 500
+   ```
+
+2. **Environment variable**
+
+   ```bash
+   export GH_COPILOT_LIMIT=500
+   gh copilot-usage
+   ```
+
+3. **gh config**
+
+   ```bash
+   gh config set copilot-usage.limit 500
+   gh copilot-usage
+   ```
+
+4. **Plan's default limit** (based on selected plan)
+
+### Available Plans
+
+| Plan | Limit | Description |
+|------|-------|-------------|
+| `free` | 50 | GitHub Copilot Free tier |
+| `pro` | 300 | GitHub Copilot Pro (default) |
+| `pro+` | 1500 | GitHub Copilot Pro+ |
+| `business` | 300 | GitHub Copilot Business |
+| `enterprise` | 1000 | GitHub Copilot Enterprise |
 
 ## Requirements
 
