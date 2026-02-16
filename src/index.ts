@@ -179,9 +179,9 @@ const LIMIT = await getLimit(cliLimit, PLAN)
 const BOX_OUTER_WIDTH = Math.min(80, process.stdout.columns)
 const BOX_INNER_WIDTH = BOX_OUTER_WIDTH - 4 // 1 border + 1 padding on either side
 const LARGE_BAR_WIDTH = BOX_INNER_WIDTH - 10 // Leave space for left labels
-const MODEL_NAME_WIDTH = 20
-const MODEL_USAGE_COUNT_WIDTH = 8 // e.g. "0.33/300"
-const MODEL_USAGE_PCT_WIDTH = 6 // e.g. "100.0%"
+const MODEL_NAME_WIDTH = 22
+const MODEL_USAGE_COUNT_WIDTH = 5 // e.g. "82"
+const MODEL_USAGE_PCT_WIDTH = 7 // e.g. "100.0%" or "1.0k%"
 const SMALL_BAR_WIDTH =
   BOX_INNER_WIDTH -
   MODEL_NAME_WIDTH -
@@ -234,6 +234,14 @@ function getColor(percentage: number) {
 }
 function dim(text: string) {
   return styleText('dim', text)
+}
+
+// Format percentage, showing >999% as X.Xk%
+function formatPercentage(pct: number): string {
+  if (pct >= 1000) {
+    return `${(pct / 1000).toFixed(1)}k%`
+  }
+  return `${pct.toFixed(1)}%`
 }
 
 const color = getColor(percentage)
@@ -316,7 +324,7 @@ if (!hasUsage) {
   for (const [model, modelCount] of modelsSorted) {
     if (modelCount === 0) continue
 
-    const modelPct = ((modelCount / LIMIT) * 100).toFixed(1)
+    const modelPct = formatPercentage((modelCount / LIMIT) * 100)
 
     // Truncate model name if too long
     let modelDisplay = model
@@ -325,7 +333,7 @@ if (!hasUsage) {
     }
 
     const smallBar = drawBar(modelCount, LIMIT, SMALL_BAR_WIDTH)
-    const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${String(modelCount).padStart(4)}/${LIMIT} ${smallBar}${String(modelPct).padStart(MODEL_USAGE_PCT_WIDTH)}%`
+    const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${String(Math.round(modelCount)).padStart(MODEL_USAGE_COUNT_WIDTH)} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
     lines.push(printBoxLeft(modelLine, BOX_INNER_WIDTH))
   }
   modelLines = lines.join('\n')
