@@ -240,7 +240,8 @@ const color = getColor(percentage)
 
 // Draw progress bar
 function drawBar(used: number, total: number, width: number): string {
-  const filled = Math.floor((used * width) / total)
+  const maxxed = Math.min(used, total)
+  const filled = Math.floor((maxxed * width) / total)
   const color = getColor((used / total) * 100)
   const empty = width - filled
   return styleText(color, '█'.repeat(filled)) + dim('░'.repeat(empty))
