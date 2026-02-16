@@ -14,6 +14,10 @@ const PLANS: Record<string, number> = {
   enterprise: 1000,
 }
 
+// Color thresholds for usage warnings
+const YELLOW_THRESHOLD = 75
+const RED_THRESHOLD = 90
+
 function toTitleCase(plan: string): string {
   return plan[0]!.toUpperCase() + plan.slice(1)
 }
@@ -228,8 +232,8 @@ const percentage = (totalUsage / LIMIT) * 100
 
 // Determine color
 function getColor(percentage: number) {
-  if (percentage < 75) return 'green' as const
-  if (percentage < 90) return 'yellow' as const
+  if (percentage < YELLOW_THRESHOLD) return 'green' as const
+  if (percentage < RED_THRESHOLD) return 'yellow' as const
   return 'red' as const
 }
 function dim(text: string) {
@@ -350,7 +354,7 @@ ${printBoxLeft(`Overall:  ${styleText('bold', totalUsage.toString())}${dim('/' +
 ${printBoxLeft(`Usage:    ${drawBar(totalUsage, LIMIT, LARGE_BAR_WIDTH)}`, BOX_INNER_WIDTH)}
 ${printBoxLeft(`Month:    ${drawMonthProgressBar(currentDay, daysInMonth, LARGE_BAR_WIDTH)}`, BOX_INNER_WIDTH)}
 ${printBoxLine('', BOX_INNER_WIDTH)}
-${printBoxLeft(styleText('dim', `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`), BOX_INNER_WIDTH)}
+${printBoxLeft(styleText(color === 'green' ? 'dim' : color, `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`), BOX_INNER_WIDTH)}
 ${drawBoxSeparator(BOX_INNER_WIDTH)}
 ${printBoxLeft(dim('Per-model usage:'), BOX_INNER_WIDTH)}
 ${printBoxLine('', BOX_INNER_WIDTH)}
