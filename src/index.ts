@@ -6,11 +6,27 @@ import pkgJson from '../package.json'
 
 const VERSION = pkgJson.version
 
+const PLANS: Record<string, number> = {
+  free: 50,
+  pro: 300,
+  'pro+': 1500,
+  business: 300,
+  enterprise: 1000,
+}
+
+function toTitleCase(plan: string): string {
+  return plan[0]!.toUpperCase() + plan.slice(1)
+}
+
 // Parse command line arguments
-function parseCliArgs(): { limit?: number } {
+function parseCliArgs(): { limit?: number; plan?: string } {
   const { values } = parseArgs({
     args: Bun.argv,
     options: {
+      plan: {
+        type: 'string',
+        short: 'p',
+      },
       limit: {
         type: 'string',
         short: 'l',
@@ -36,19 +52,27 @@ Usage:
   gh copilot-usage [options]
 
 Options:
-  --limit <number>    Set the monthly premium request limit (default: 300)
+  --plan <name>       Set your Copilot plan (free, pro, pro+, business, enterprise)
+  --limit <number>    Set custom monthly premium request limits
   --help, -h          Show this help message
   --version, -v       Show version information
 
 Configuration:
+  The plan can be configured in multiple ways (in order of priority):
+    1. Command line flag: --plan pro
+    2. Environment variable: GH_COPILOT_PLAN=pro
+    3. gh config: gh config set copilot-usage.plan pro
+    4. Default: pro
+
   The limit can be configured in multiple ways (in order of priority):
     1. Command line flag: --limit 300
     2. Environment variable: GH_COPILOT_LIMIT=300
     3. gh config: gh config set copilot-usage.limit 300
-    4. Default: 300 (GitHub Copilot Pro)
+    4. Plan's default limit (based on selected plan)
 
 Examples:
   gh copilot-usage
+  gh copilot-usage --plan pro+
   gh copilot-usage --limit 500
   GH_COPILOT_LIMIT=500 gh copilot-usage
 `)
@@ -58,6 +82,18 @@ Examples:
   if (values.version) {
     console.log(`gh-copilot-usage v${VERSION}`)
     process.exit(0)
+  }
+
+  let plan: string | undefined
+  if (values.plan !== undefined) {
+    const planKey = values.plan.toLowerCase()
+    if (!PLANS[planKey]) {
+      console.error(
+        `Error: --plan must be one of: ${Object.keys(PLANS).join(', ')}`,
+      )
+      process.exit(1)
+    }
+    plan = planKey
   }
 
   let limit: number | undefined
@@ -70,11 +106,42 @@ Examples:
     limit = value
   }
 
-  return { limit }
+  return { limit, plan }
 }
 
-// Get limit from various sources (priority: CLI > env > gh config > default)
-async function getLimit(cliLimit?: number): Promise<number> {
+// Get plan from various sources (priority: CLI > env > gh config > default)
+async function getPlan(cliPlan?: string): Promise<string> {
+  // 1. CLI argument (highest priority)
+  if (cliPlan !== undefined) {
+    return cliPlan
+  }
+
+  // 2. Environment variable
+  const envPlan = process.env.GH_COPILOT_PLAN
+  if (envPlan !== undefined && PLANS[envPlan.toLowerCase()]) {
+    return envPlan.toLowerCase()
+  }
+
+  // 3. gh config
+  try {
+    const configValue = await $`gh config get copilot-usage.plan`.text()
+    const planKey = configValue.trim().toLowerCase()
+    if (PLANS[planKey]) {
+      return planKey
+    }
+  } catch {
+    // Config not set, continue to default
+  }
+
+  // 4. Default (Pro)
+  return 'pro'
+}
+
+// Get limit from various sources (priority: CLI > env > gh config > plan default)
+async function getLimit(
+  cliLimit: number | undefined,
+  plan: string,
+): Promise<number> {
   // 1. CLI argument (highest priority)
   if (cliLimit !== undefined) {
     return cliLimit
@@ -97,15 +164,16 @@ async function getLimit(cliLimit?: number): Promise<number> {
       return parsed
     }
   } catch {
-    // Config not set, continue to default
+    // Config not set, continue to plan default
   }
 
-  // 4. Default (GitHub Copilot Pro)
-  return 300
+  // 4. Plan's default limit
+  return PLANS[plan] ?? 300
 }
 
-const { limit: cliLimit } = parseCliArgs()
-const LIMIT = await getLimit(cliLimit)
+const { limit: cliLimit, plan: cliPlan } = parseCliArgs()
+const PLAN = await getPlan(cliPlan)
+const LIMIT = await getLimit(cliLimit, PLAN)
 
 // Layout
 const BOX_OUTER_WIDTH = Math.min(80, process.stdout.columns)
@@ -265,7 +333,7 @@ if (!hasUsage) {
 // Generate complete output as a single template string
 const output = `${drawBoxTop(BOX_INNER_WIDTH)}
 ${printBoxLine('', BOX_INNER_WIDTH)}
-${printBoxLine('GitHub Copilot Pro - Premium Requests Usage', BOX_INNER_WIDTH)}
+${printBoxLine(`GitHub Copilot ${toTitleCase(PLAN)} - Premium Requests Usage`, BOX_INNER_WIDTH)}
 ${printBoxLine(`${monthName} ${year} • ${username}`, BOX_INNER_WIDTH)}
 ${printBoxLine('', BOX_INNER_WIDTH)}
 ${drawBoxSeparator(BOX_INNER_WIDTH)}
