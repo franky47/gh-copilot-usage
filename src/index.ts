@@ -1,21 +1,35 @@
 #!/usr/bin/env bun
 
 import { $ } from 'bun'
-import { styleText } from 'node:util'
+import { parseArgs, styleText } from 'node:util'
 import pkgJson from '../package.json'
 
 const VERSION = pkgJson.version
 
 // Parse command line arguments
-function parseArgs() {
-  const args = process.argv.slice(2)
-  let limit: number | undefined
+function parseCliArgs(): { limit?: number } {
+  const { values } = parseArgs({
+    args: Bun.argv,
+    options: {
+      limit: {
+        type: 'string',
+        short: 'l',
+      },
+      help: {
+        type: 'boolean',
+        short: 'h',
+      },
+      version: {
+        type: 'boolean',
+        short: 'v',
+      },
+    },
+    strict: true,
+    allowPositionals: true,
+  })
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i]
-
-    if (arg === '--help' || arg === '-h') {
-      console.log(`
+  if (values.help) {
+    console.log(`
 GitHub Copilot Premium Requests Usage Tracker v${VERSION}
 
 Usage:
@@ -38,32 +52,22 @@ Examples:
   gh copilot-usage --limit 500
   GH_COPILOT_LIMIT=500 gh copilot-usage
 `)
-      process.exit(0)
-    }
+    process.exit(0)
+  }
 
-    if (arg === '--version' || arg === '-v') {
-      console.log(`gh-copilot-usage v${VERSION}`)
-      process.exit(0)
-    }
+  if (values.version) {
+    console.log(`gh-copilot-usage v${VERSION}`)
+    process.exit(0)
+  }
 
-    if (arg === '--limit') {
-      if (i + 1 >= args.length) {
-        console.error('Error: --limit requires a numeric argument')
-        process.exit(1)
-      }
-      const nextArg = args[i + 1]
-      if (nextArg === undefined) {
-        console.error('Error: --limit requires a numeric argument')
-        process.exit(1)
-      }
-      const value = parseInt(nextArg, 10)
-      if (isNaN(value) || value <= 0) {
-        console.error('Error: --limit must be a positive number')
-        process.exit(1)
-      }
-      limit = value
-      i++ // Skip next arg
+  let limit: number | undefined
+  if (values.limit !== undefined) {
+    const value = parseInt(values.limit, 10)
+    if (isNaN(value) || value <= 0) {
+      console.error('Error: --limit must be a positive number')
+      process.exit(1)
     }
+    limit = value
   }
 
   return { limit }
@@ -100,7 +104,7 @@ async function getLimit(cliLimit?: number): Promise<number> {
   return 300
 }
 
-const { limit: cliLimit } = parseArgs()
+const { limit: cliLimit } = parseCliArgs()
 const LIMIT = await getLimit(cliLimit)
 
 // Layout
