@@ -216,10 +216,9 @@ const response =
   (await $`gh api /users/${username}/settings/billing/premium_request/usage?year=${year}\&month=${month}`.json()) as UsageResponse
 
 // Calculate total usage and aggregate by model
-const totalUsage = (response.usageItems ?? []).reduce(
-  (sum, item) => sum + item.grossQuantity,
-  0,
-)
+const totalUsage = Math.round(
+  (response.usageItems ?? []).reduce((sum, item) => sum + item.grossQuantity, 0) * 100,
+) / 100
 
 const modelCounts = new Map<string, number>()
 for (const item of response.usageItems ?? []) {
