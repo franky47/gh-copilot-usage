@@ -88,6 +88,38 @@ function printBoxLeft(text: string, width: number): string {
   return dim('│ ') + text + ' '.repeat(Math.max(0, rightPad)) + dim(' │')
 }
 
+function printBoxLeftRight(
+  leftText: string,
+  rightText: string,
+  width: number,
+): string {
+  const leftW = Bun.stringWidth(leftText)
+  const rightW = Bun.stringWidth(rightText)
+  const gap = Math.max(1, width - leftW - rightW)
+  return dim('│ ') + leftText + ' '.repeat(gap) + rightText + dim(' │')
+}
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
+
+export function formatTimeUntilReset(
+  now: Date,
+  resetDate: Date,
+): string | null {
+  const diffMs = resetDate.getTime() - now.getTime()
+  if (diffMs <= 0 || diffMs >= SEVEN_DAYS_MS) return null
+
+  const totalMinutes = Math.floor(diffMs / (60 * 1000))
+  const totalHours = Math.floor(diffMs / (60 * 60 * 1000))
+  const days = Math.floor(diffMs / (24 * 60 * 60 * 1000))
+
+  if (totalHours >= 24) return `in ${days} ${days === 1 ? 'day' : 'days'}`
+  if (totalHours >= 12) return `in ${totalHours}h`
+
+  const remainingMinutes = totalMinutes % 60
+  if (totalHours === 0) return `in ${remainingMinutes}min`
+  return `in ${totalHours}h ${remainingMinutes}min`
+}
+
 export type RenderOptions = {
   width: number
 }
@@ -117,6 +149,7 @@ export function renderDisplay(
     currentDay,
     daysInMonth,
     nextResetDate,
+    now,
   } = data
 
   const percentage = (totalUsage / limit) * 100
@@ -125,6 +158,12 @@ export function renderDisplay(
 
   const nextMonthName = nextResetDate.toLocaleString('en-US', { month: 'long' })
   const nextYear = nextResetDate.getFullYear()
+  const timeUntilReset =
+    width >= 60 ? formatTimeUntilReset(now, nextResetDate) : null
+  const resetLabel = styleText(
+    color === 'green' ? 'dim' : color,
+    `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`,
+  )
 
   const center = (text: string) => printBoxLine(text, boxInnerWidth)
   const left = (text: string) => printBoxLeft(text, boxInnerWidth)
@@ -176,12 +215,9 @@ export function renderDisplay(
       `Month:    ${drawMonthProgressBar(currentDay, daysInMonth, largeBarWidth)}`,
     ),
     center(''),
-    left(
-      styleText(
-        color === 'green' ? 'dim' : color,
-        `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`,
-      ),
-    ),
+    timeUntilReset
+      ? printBoxLeftRight(resetLabel, dim(timeUntilReset), boxInnerWidth)
+      : left(resetLabel),
     drawBoxSeparator(boxInnerWidth),
     left(dim('Per-model usage:')),
     center(''),
