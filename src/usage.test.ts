@@ -104,9 +104,7 @@ describe('fetchUsage', () => {
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
 
-    expect(result.nextResetDate.getFullYear()).toBe(2025)
-    expect(result.nextResetDate.getMonth()).toBe(6) // July (0-indexed)
-    expect(result.nextResetDate.getDate()).toBe(1)
+    expect(result.nextResetDate.toISOString()).toBe('2025-07-01T00:00:00.000Z')
   })
 
   test('next reset date wraps year correctly in December', async () => {
@@ -116,9 +114,7 @@ describe('fetchUsage', () => {
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
 
-    expect(result.nextResetDate.getFullYear()).toBe(2026)
-    expect(result.nextResetDate.getMonth()).toBe(0) // January
-    expect(result.nextResetDate.getDate()).toBe(1)
+    expect(result.nextResetDate.toISOString()).toBe('2026-01-01T00:00:00.000Z')
   })
 
   test('rounds totalUsage to 2 decimal places', async () => {

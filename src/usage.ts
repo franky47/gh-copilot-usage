@@ -17,12 +17,12 @@ export type UsageData = {
 
 export class FetchError extends errore.createTaggedError({
   name: 'FetchError',
-  message: 'Failed to fetch usage data: $reason',
+  message: 'Failed to fetch data: $reason',
 }) {}
 
 export class ParseError extends errore.createTaggedError({
   name: 'ParseError',
-  message: 'Failed to parse usage response: $reason',
+  message: 'Failed to parse API response: $reason',
 }) {}
 
 const usageItemSchema = z.object({
@@ -76,7 +76,7 @@ export async function fetchUsage(
 
   const nextMonthIndex = now.getMonth() === 11 ? 0 : now.getMonth() + 1
   const nextYear = now.getMonth() === 11 ? year + 1 : year
-  const nextResetDate = new Date(nextYear, nextMonthIndex, 1)
+  const nextResetDate = new Date(Date.UTC(nextYear, nextMonthIndex, 1))
 
   return {
     username,
