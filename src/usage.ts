@@ -11,6 +11,7 @@ export type UsageData = {
   currentDay: number
   daysInMonth: number
   nextResetDate: Date
+  now: Date
   totalUsage: number
   modelCounts: Map<string, number>
 }
@@ -86,6 +87,7 @@ export async function fetchUsage(
     currentDay,
     daysInMonth,
     nextResetDate,
+    now,
     totalUsage,
     modelCounts,
   }

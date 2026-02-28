@@ -215,3 +215,24 @@ exports[`renderDisplay snapshots layout at 100 columns 1`] = `
 \x1B[2m└──────────────────────────────────────────────────────────────────────────────────────────────────┘\x1B[22m
 "
 `;
+
+exports[`renderDisplay snapshots within 7 days of reset shows relative time 1`] = `
+"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m0\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[32m\x1B[1m0.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                      \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[32m\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[2mResets:   July 1, 2025 at 00:00 UTC\x1B[22m                                \x1B[2min 4 days\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mNo premium requests used yet.                                               \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+"
+`;

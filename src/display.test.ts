@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test'
-import { getModelColor, getOverallColor, renderDisplay } from './display.ts'
+import {
+  formatTimeUntilReset,
+  getModelColor,
+  getOverallColor,
+  renderDisplay,
+} from './display.ts'
 import type { UsageData } from './usage.ts'
 
 const RENDER_OPTIONS = { width: 80 }
@@ -12,7 +17,8 @@ function makeUsageData(overrides: Partial<UsageData> = {}): UsageData {
     monthName: 'June',
     currentDay: 15,
     daysInMonth: 30,
-    nextResetDate: new Date(2025, 6, 1), // July 1
+    nextResetDate: new Date(Date.UTC(2025, 6, 1)), // July 1 UTC
+    now: new Date(Date.UTC(2025, 5, 15)), // June 15 UTC — >7 days before reset
     totalUsage: 0,
     modelCounts: new Map(),
     ...overrides,
@@ -135,6 +141,20 @@ describe('renderDisplay', () => {
     const modelCounts = new Map([['gpt-4o', 150]])
     const result = renderDisplay(
       makeUsageData({ totalUsage: 150, modelCounts }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
+    }
+  })
+
+  test('each output line fits within width when relative time is shown', () => {
+    const nextResetDate = new Date(Date.UTC(2025, 6, 1))
+    const now = new Date(Date.UTC(2025, 5, 26, 12, 0, 0)) // ~4.5 days before
+    const result = renderDisplay(
+      makeUsageData({ nextResetDate, now }),
       'pro',
       300,
       RENDER_OPTIONS,
@@ -311,7 +331,7 @@ describe('renderDisplay snapshots', () => {
         monthName: 'December',
         currentDay: 31,
         daysInMonth: 31,
-        nextResetDate: new Date(2026, 0, 1),
+        nextResetDate: new Date(Date.UTC(2026, 0, 1)),
       }),
       'pro',
       300,
@@ -346,5 +366,71 @@ describe('renderDisplay snapshots', () => {
       { width: 100 },
     )
     expect(result).toMatchSnapshot()
+  })
+
+  test('within 7 days of reset shows relative time', () => {
+    const nextResetDate = new Date(Date.UTC(2025, 6, 1)) // July 1 UTC midnight
+    const now = new Date(Date.UTC(2025, 5, 26, 12, 0, 0)) // ~4.5 days before
+    const result = renderDisplay(
+      makeUsageData({ nextResetDate, now }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+})
+
+describe('formatTimeUntilReset', () => {
+  const reset = new Date(Date.UTC(2025, 6, 1)) // July 1 00:00 UTC
+
+  test('returns null when more than 7 days away', () => {
+    const now = new Date(Date.UTC(2025, 5, 23)) // 8 days before
+    expect(formatTimeUntilReset(now, reset)).toBeNull()
+  })
+
+  test('returns null exactly at 7-day boundary', () => {
+    const now = new Date(reset.getTime() - 7 * 24 * 60 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBeNull()
+  })
+
+  test('returns days when between 1 and 7 days away', () => {
+    const now = new Date(reset.getTime() - 5 * 24 * 60 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 5 days')
+  })
+
+  test('returns singular day when exactly 1 day away', () => {
+    const now = new Date(reset.getTime() - 24 * 60 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 1 day')
+  })
+
+  test('returns hours when exactly 24h minus 1ms away', () => {
+    const now = new Date(reset.getTime() - 24 * 60 * 60 * 1000 + 1)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 23h')
+  })
+
+  test('returns hours when less than 24h away', () => {
+    const now = new Date(reset.getTime() - 23 * 60 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 23h')
+  })
+
+  test('returns hours when exactly 12h away', () => {
+    const now = new Date(reset.getTime() - 12 * 60 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 12h')
+  })
+
+  test('returns hours and minutes when less than 12h away', () => {
+    const now = new Date(reset.getTime() - (6 * 60 + 30) * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 6h 30min')
+  })
+
+  test('returns only minutes when less than 1h away', () => {
+    const now = new Date(reset.getTime() - 45 * 60 * 1000)
+    expect(formatTimeUntilReset(now, reset)).toBe('in 45min')
+  })
+
+  test('returns null when reset is in the past', () => {
+    const now = new Date(reset.getTime() + 1000)
+    expect(formatTimeUntilReset(now, reset)).toBeNull()
   })
 })
