@@ -264,7 +264,7 @@ function drawMonthProgressBar(
   totalDays: number,
   width: number,
 ): string {
-  const filled = Math.floor((currentDay * width) / totalDays)
+  const filled = Math.min(Math.floor((currentDay * width) / totalDays), width - 1)
   const empty = width - filled - 1 // -1 for the separator
   return dim('⋅'.repeat(filled)) + '|' + dim('⋅'.repeat(empty))
 }
