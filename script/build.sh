@@ -7,12 +7,19 @@ if ! command -v bun &> /dev/null; then
   exit 1
 fi
 
+# Fail the build if jq is not available
+if ! command -v jq &> /dev/null; then
+  echo "jq is not installed. Please install jq to continue."
+  exit 1
+fi
 
 # Set version from git tag (strip leading 'v')
 if [[ -n "${TAG_NAME}" ]]; then
   version="${TAG_NAME#v}"
   echo "Setting package.json version to ${version}..."
-  jq --arg v "${version}" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
+  tmpfile="$(mktemp package.json.tmp.XXXXXX)"
+  trap 'rm -f "$tmpfile"' EXIT
+  jq --arg v "${version}" '.version = $v' package.json > "$tmpfile" && mv "$tmpfile" package.json
 fi
 
 # Install dependencies
