@@ -8,6 +8,13 @@ if ! command -v bun &> /dev/null; then
 fi
 
 
+# Set version from git tag (strip leading 'v')
+if [[ -n "${TAG_NAME}" ]]; then
+  version="${TAG_NAME#v}"
+  echo "Setting package.json version to ${version}..."
+  jq --arg v "${version}" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
+fi
+
 # Install dependencies
 echo "Installing dependencies..."
 bun install
@@ -26,7 +33,7 @@ build_platform() {
   fi
 
   echo "Building for ${platform} (${target})..."
-  bun build src/index.ts --compile --target="${target}" --outfile="${output}"
+  bun build src/main.ts --compile --target="${target}" --outfile="${output}"
 }
 
 # Build for all platforms
