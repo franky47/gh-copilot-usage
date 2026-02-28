@@ -4,6 +4,10 @@
   "workspaces": {
     "": {
       "name": "gh-copilot-usage",
+      "dependencies": {
+        "errore": "^0.14.0",
+        "zod": "^4.3.6",
+      },
       "devDependencies": {
         "@types/bun": "1.3.9",
       },
@@ -19,8 +23,12 @@
 
     "bun-types": ["bun-types@1.3.9", "", { "dependencies": { "@types/node": "*" } }, "sha512-+UBWWOakIP4Tswh0Bt0QD0alpTY8cb5hvgiYeWCMet9YukHbzuruIEeXC2D7nMJPB12kbh8C7XJykSexEqGKJg=="],
 
+    "errore": ["errore@0.14.0", "", { "bin": { "errore": "dist/cli.js" } }, "sha512-2RI7BGdxWlJe6yJ3DK0pIvLNzXEE4M41VmF2HrH7C2HldTjYiORQNJ+ufsvAvOUGW/4rRHPFOpooP3ebIRIEXw=="],
+
     "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "undici-types": ["undici-types@7.16.0", "", {}, "sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw=="],
+
+    "zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
   }
 }
