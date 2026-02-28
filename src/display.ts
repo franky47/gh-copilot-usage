@@ -62,7 +62,7 @@ function drawMonthProgressBar(
 }
 
 function drawBoxTop(width: number): string {
-  return dim('┌─' + '─'.repeat(width) + '─┐')
+  return dim('╭─' + '─'.repeat(width) + '─╮')
 }
 
 function drawBoxSeparator(width: number): string {
@@ -70,7 +70,7 @@ function drawBoxSeparator(width: number): string {
 }
 
 function drawBoxBottom(width: number): string {
-  return dim('└─' + '─'.repeat(width) + '─┘')
+  return dim('╰─' + '─'.repeat(width) + '─╯')
 }
 
 function printBoxLine(text: string, width: number): string {

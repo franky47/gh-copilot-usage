@@ -1,7 +1,7 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
 exports[`renderDisplay snapshots above threshold but below month cursor (green override) 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -17,12 +17,12 @@ exports[`renderDisplay snapshots above threshold but below month cursor (green o
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mgpt-4o                  240 \x1B[33m████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░\x1B[22m   80.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots zero usage, pro plan 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -38,12 +38,12 @@ exports[`renderDisplay snapshots zero usage, pro plan 1`] = `
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mNo premium requests used yet.                                               \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots low usage (green zone), pro plan, single model 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -59,12 +59,12 @@ exports[`renderDisplay snapshots low usage (green zone), pro plan, single model 
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mgpt-4o                   60 \x1B[32m████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   20.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots mid usage (yellow zone), pro+ plan, multiple models 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro+ - Premium Requests Usage                \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -82,12 +82,12 @@ exports[`renderDisplay snapshots mid usage (yellow zone), pro+ plan, multiple mo
 \x1B[2m│ \x1B[22mclaude-3.5-sonnet        80 \x1B[32m██████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   26.7%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mo3-mini                  10 \x1B[32m█\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m    3.3%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots high usage (red zone), business plan 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m              GitHub Copilot Business - Premium Requests Usage              \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -104,12 +104,12 @@ exports[`renderDisplay snapshots high usage (red zone), business plan 1`] = `
 \x1B[2m│ \x1B[22mgpt-4o                  500 \x1B[32m█████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░\x1B[22m   62.5%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mclaude-3.5-sonnet       280 \x1B[32m██████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   35.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots usage exceeds limit (over 100%) 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -125,12 +125,12 @@ exports[`renderDisplay snapshots usage exceeds limit (over 100%) 1`] = `
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mgpt-4o                  350 \x1B[31m████████████████████████████████████████\x1B[39m\x1B[2m\x1B[22m  116.7%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots long model name gets truncated 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -147,12 +147,12 @@ exports[`renderDisplay snapshots long model name gets truncated 1`] = `
 \x1B[2m│ \x1B[22ma-very-long-model-nam…  100 \x1B[32m█████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   33.3%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mgpt-4o                   50 \x1B[32m██████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   16.7%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots end of month, next reset in following year 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                          December 2025 • octocat                           \x1B[2m │\x1B[22m
@@ -168,12 +168,12 @@ exports[`renderDisplay snapshots end of month, next reset in following year 1`] 
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mNo premium requests used yet.                                               \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots layout at 60 columns 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                        \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m      GitHub Copilot Pro - Premium Requests Usage       \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                  June 2025 • octocat                   \x1B[2m │\x1B[22m
@@ -190,12 +190,12 @@ exports[`renderDisplay snapshots layout at 60 columns 1`] = `
 \x1B[2m│ \x1B[22mgpt-4o                  120 \x1B[32m████████\x1B[39m\x1B[2m░░░░░░░░░░░░\x1B[22m   40.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mclaude-3.5-sonnet        60 \x1B[32m████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░\x1B[22m   20.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                        \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots layout at 100 columns 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                                                \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                          GitHub Copilot Pro - Premium Requests Usage                           \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                      June 2025 • octocat                                       \x1B[2m │\x1B[22m
@@ -212,12 +212,12 @@ exports[`renderDisplay snapshots layout at 100 columns 1`] = `
 \x1B[2m│ \x1B[22mgpt-4o                  120 \x1B[32m████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   40.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mclaude-3.5-sonnet        60 \x1B[32m████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m   20.0%\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                                                \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
 
 exports[`renderDisplay snapshots within 7 days of reset shows relative time 1`] = `
-"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+"\x1B[2m╭──────────────────────────────────────────────────────────────────────────────╮\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
@@ -233,6 +233,6 @@ exports[`renderDisplay snapshots within 7 days of reset shows relative time 1`] 
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mNo premium requests used yet.                                               \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+\x1B[2m╰──────────────────────────────────────────────────────────────────────────────╯\x1B[22m
 "
 `;
