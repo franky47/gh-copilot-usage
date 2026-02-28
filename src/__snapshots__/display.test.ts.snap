@@ -1,5 +1,26 @@
 // Bun Snapshot v1, https://bun.sh/docs/test/snapshots
 
+exports[`renderDisplay snapshots above threshold but below month cursor (green override) 1`] = `
+"\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                GitHub Copilot Pro - Premium Requests Usage                 \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m240\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[32m\x1B[1m80.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                   \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[32m████████████████████████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[2mResets:   July 1, 2025 at 00:00 UTC\x1B[22m                                         \x1B[2m │\x1B[22m
+\x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mgpt-4o                  240 \x1B[33m████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░\x1B[22m   80.0%\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
+\x1B[2m└──────────────────────────────────────────────────────────────────────────────┘\x1B[22m
+"
+`;
+
 exports[`renderDisplay snapshots zero usage, pro plan 1`] = `
 "\x1B[2m┌──────────────────────────────────────────────────────────────────────────────┐\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
@@ -49,11 +70,11 @@ exports[`renderDisplay snapshots mid usage (yellow zone), pro+ plan, multiple mo
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
-\x1B[2m│ \x1B[22mOverall:  \x1B[1m240\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[33m\x1B[1m80.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                   \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22mUsage:    \x1B[33m████████████████████████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m240\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[31m\x1B[1m80.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                   \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[31m████████████████████████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22m\x1B[33mResets:   July 1, 2025 at 00:00 UTC\x1B[39m                                         \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[31mResets:   July 1, 2025 at 00:00 UTC\x1B[39m                                         \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
 \x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
@@ -115,11 +136,11 @@ exports[`renderDisplay snapshots long model name gets truncated 1`] = `
 \x1B[2m│ \x1B[22m                            June 2025 • octocat                             \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
-\x1B[2m│ \x1B[22mOverall:  \x1B[1m150\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[32m\x1B[1m50.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                   \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22mUsage:    \x1B[32m█████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m150\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[33m\x1B[1m50.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                   \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[33m█████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22m\x1B[2mResets:   July 1, 2025 at 00:00 UTC\x1B[22m                                         \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[33mResets:   July 1, 2025 at 00:00 UTC\x1B[39m                                         \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────┤\x1B[22m
 \x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                                            \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                            \x1B[2m │\x1B[22m
@@ -158,11 +179,11 @@ exports[`renderDisplay snapshots layout at 60 columns 1`] = `
 \x1B[2m│ \x1B[22m                  June 2025 • octocat                   \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                        \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────┤\x1B[22m
-\x1B[2m│ \x1B[22mOverall:  \x1B[1m180\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[32m\x1B[1m60.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                               \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22mUsage:    \x1B[32m███████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m180\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[33m\x1B[1m60.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                               \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[33m███████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                        \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22m\x1B[2mResets:   July 1, 2025 at 00:00 UTC\x1B[22m                     \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[33mResets:   July 1, 2025 at 00:00 UTC\x1B[39m                     \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────┤\x1B[22m
 \x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                        \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                        \x1B[2m │\x1B[22m
@@ -180,11 +201,11 @@ exports[`renderDisplay snapshots layout at 100 columns 1`] = `
 \x1B[2m│ \x1B[22m                                      June 2025 • octocat                                       \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                                                \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────────────────────────┤\x1B[22m
-\x1B[2m│ \x1B[22mOverall:  \x1B[1m180\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[32m\x1B[1m60.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                                       \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22mUsage:    \x1B[32m███████████████████████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mOverall:  \x1B[1m180\x1B[22m\x1B[2m/300 (\x1B[22m\x1B[33m\x1B[1m60.0%\x1B[22m\x1B[39m\x1B[2m)\x1B[22m                                                                       \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22mUsage:    \x1B[33m███████████████████████████████████████████████████\x1B[39m\x1B[2m░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22mMonth:    \x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m|\x1B[2m⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅\x1B[22m\x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                                                \x1B[2m │\x1B[22m
-\x1B[2m│ \x1B[22m\x1B[2mResets:   July 1, 2025 at 00:00 UTC\x1B[22m                                                             \x1B[2m │\x1B[22m
+\x1B[2m│ \x1B[22m\x1B[33mResets:   July 1, 2025 at 00:00 UTC\x1B[39m                                                             \x1B[2m │\x1B[22m
 \x1B[2m├──────────────────────────────────────────────────────────────────────────────────────────────────┤\x1B[22m
 \x1B[2m│ \x1B[22m\x1B[2mPer-model usage:\x1B[22m                                                                                \x1B[2m │\x1B[22m
 \x1B[2m│ \x1B[22m                                                                                                \x1B[2m │\x1B[22m

@@ -1,9 +1,6 @@
 import { styleText } from 'node:util'
 import type { UsageData } from './usage.ts'
 
-const YELLOW_THRESHOLD = 75
-const RED_THRESHOLD = 90
-
 const MODEL_NAME_WIDTH = 22
 const MODEL_USAGE_COUNT_WIDTH = 5
 const MODEL_USAGE_PCT_WIDTH = 7
@@ -16,9 +13,21 @@ function dim(text: string): string {
   return styleText('dim', text)
 }
 
-function getColor(percentage: number): 'green' | 'yellow' | 'red' {
-  if (percentage < YELLOW_THRESHOLD) return 'green'
-  if (percentage < RED_THRESHOLD) return 'yellow'
+export function getOverallColor(
+  percentage: number,
+  monthProgress: number,
+): 'green' | 'yellow' | 'red' {
+  const usageRatio = percentage / 100
+  // Half-way point between monthProgress & endOfMonth
+  const redThreshold = (1 + monthProgress) / 2
+  if (usageRatio < monthProgress) return 'green'
+  if (usageRatio < redThreshold) return 'yellow'
+  return 'red'
+}
+
+export function getModelColor(percentage: number): 'green' | 'yellow' | 'red' {
+  if (percentage < 75) return 'green'
+  if (percentage < 90) return 'yellow'
   return 'red'
 }
 
@@ -27,10 +36,14 @@ function formatPercentage(pct: number): string {
   return `${pct.toFixed(1)}%`
 }
 
-function drawBar(used: number, total: number, width: number): string {
+function drawBar(
+  used: number,
+  total: number,
+  width: number,
+  color: 'green' | 'yellow' | 'red',
+): string {
   const maxxed = Math.min(used, total)
   const filled = Math.floor((maxxed * width) / total)
-  const color = getColor((used / total) * 100)
   const empty = width - filled
   return styleText(color, '█'.repeat(filled)) + dim('░'.repeat(empty))
 }
@@ -107,7 +120,8 @@ export function renderDisplay(
   } = data
 
   const percentage = (totalUsage / limit) * 100
-  const color = getColor(percentage)
+  const monthProgress = currentDay / daysInMonth
+  const color = getOverallColor(percentage, monthProgress)
 
   const nextMonthName = nextResetDate.toLocaleString('en-US', { month: 'long' })
   const nextYear = nextResetDate.getFullYear()
@@ -128,13 +142,19 @@ export function renderDisplay(
     for (const [model, modelCount] of modelsSorted) {
       if (modelCount === 0) continue
 
-      const modelPct = formatPercentage((modelCount / limit) * 100)
+      const modelPctValue = (modelCount / limit) * 100
+      const modelPct = formatPercentage(modelPctValue)
       let modelDisplay = model
       if (model.length > MODEL_NAME_WIDTH) {
         modelDisplay = model.substring(0, MODEL_NAME_WIDTH - 1) + '…'
       }
 
-      const smallBar = drawBar(modelCount, limit, smallBarWidth)
+      const smallBar = drawBar(
+        modelCount,
+        limit,
+        smallBarWidth,
+        getModelColor(modelPctValue),
+      )
       const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${String(Math.round(modelCount)).padStart(MODEL_USAGE_COUNT_WIDTH)} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
       lines.push(left(modelLine))
     }
@@ -151,7 +171,7 @@ export function renderDisplay(
     left(
       `Overall:  ${styleText('bold', totalUsage.toString())}${dim('/' + limit + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`,
     ),
-    left(`Usage:    ${drawBar(totalUsage, limit, largeBarWidth)}`),
+    left(`Usage:    ${drawBar(totalUsage, limit, largeBarWidth, color)}`),
     left(
       `Month:    ${drawMonthProgressBar(currentDay, daysInMonth, largeBarWidth)}`,
     ),

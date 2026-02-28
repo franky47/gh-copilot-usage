@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { renderDisplay } from './display.ts'
+import { getModelColor, getOverallColor, renderDisplay } from './display.ts'
 import type { UsageData } from './usage.ts'
 
 const RENDER_OPTIONS = { width: 80 }
@@ -145,7 +145,95 @@ describe('renderDisplay', () => {
   })
 })
 
+describe('month-cursor color logic', () => {
+  // New logic: green if usageRatio < monthProgress
+  //            yellow if usageRatio >= monthProgress and < (1 + monthProgress) / 2
+  //            red if usageRatio >= (1 + monthProgress) / 2
+
+  test('usage strictly below month cursor returns green', () => {
+    // day 25/30 → cursor 0.833, usage 80% → 0.80 < 0.833 → green
+    expect(getOverallColor(80, 25 / 30)).toBe('green')
+  })
+
+  test('usage at month cursor returns yellow', () => {
+    // day 20/30 → cursor 0.667, redThreshold = (1 + 0.667) / 2 = 0.833
+    // usage 66.7% → 0.667 >= 0.667 and < 0.833 → yellow
+    expect(getOverallColor(66.7, 20 / 30)).toBe('yellow')
+  })
+
+  test('usage between cursor and halfway point returns yellow', () => {
+    // day 10/30 → cursor 0.333, redThreshold = (1 + 0.333) / 2 = 0.667
+    // usage 50% → 0.50 >= 0.333 and < 0.667 → yellow
+    expect(getOverallColor(50, 10 / 30)).toBe('yellow')
+  })
+
+  test('usage at the halfway point returns red', () => {
+    // day 10/30 → cursor 0.333, redThreshold = 0.667
+    // usage 66.7% → 0.667 >= 0.667 → red
+    expect(getOverallColor(66.7, 10 / 30)).toBe('red')
+  })
+
+  test('usage beyond halfway point returns red', () => {
+    // day 20/30 → cursor 0.667, redThreshold = 0.833
+    // usage 95% → 0.95 >= 0.833 → red
+    expect(getOverallColor(95, 20 / 30)).toBe('red')
+  })
+
+  test('usage over 100% returns red', () => {
+    // day 10/30 → cursor 0.333, redThreshold = 0.667
+    // usage 150% → 1.50 >= 0.667 → red
+    expect(getOverallColor(150, 10 / 30)).toBe('red')
+  })
+
+  test('day 1 of 30: red threshold is near 50% usage', () => {
+    // cursor ≈ 0.033, redThreshold ≈ (1 + 0.033) / 2 ≈ 0.517
+    // usage 40% → green (below cursor? no: 0.40 >= 0.033) → yellow
+    expect(getOverallColor(40, 1 / 30)).toBe('yellow')
+    // usage 52% → 0.52 >= 0.517 → red
+    expect(getOverallColor(52, 1 / 30)).toBe('red')
+  })
+
+  test('last day of month: red threshold is near 100% usage', () => {
+    // cursor = 1.0, redThreshold = (1 + 1) / 2 = 1.0
+    // any usage < 100% → green (below cursor)
+    expect(getOverallColor(99, 30 / 30)).toBe('green')
+    // usage 100% → 1.00 >= 1.00 → red (no yellow band when cursor is at end)
+    expect(getOverallColor(100, 30 / 30)).toBe('red')
+  })
+})
+
+describe('getModelColor', () => {
+  test('below yellow threshold returns green', () => {
+    expect(getModelColor(74.9)).toBe('green')
+  })
+
+  test('at yellow threshold returns yellow', () => {
+    expect(getModelColor(75)).toBe('yellow')
+  })
+
+  test('at red threshold returns red', () => {
+    expect(getModelColor(90)).toBe('red')
+  })
+})
+
 describe('renderDisplay snapshots', () => {
+  test('above threshold but below month cursor (green override)', () => {
+    // 80% usage but 83% through month → stays green
+    const modelCounts = new Map([['gpt-4o', 240]])
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: 240,
+        modelCounts,
+        currentDay: 25,
+        daysInMonth: 30,
+      }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
   test('zero usage, pro plan', () => {
     const result = renderDisplay(makeUsageData(), 'pro', 300, RENDER_OPTIONS)
     expect(result).toMatchSnapshot()
