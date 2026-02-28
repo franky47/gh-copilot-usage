@@ -194,7 +194,10 @@ export function renderDisplay(
         smallBarWidth,
         getModelColor(modelPctValue),
       )
-      const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${String(Math.round(modelCount)).padStart(MODEL_USAGE_COUNT_WIDTH)} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
+      const modelCountStr = modelCount
+        .toFixed(Number.isInteger(modelCount) ? 0 : 2)
+        .replace(/(\.\d)0$/, '$1') // Remove trailing 0 for floats
+      const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${modelCountStr.padStart(MODEL_USAGE_COUNT_WIDTH)} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
       lines.push(left(modelLine))
     }
     modelLines = lines.join('\n')
