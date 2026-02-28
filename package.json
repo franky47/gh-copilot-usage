@@ -23,19 +23,22 @@
     "dist"
   ],
   "bin": {
-    "gh-copilot-usage": "./src/index.ts"
+    "gh-copilot-usage": "./src/main.ts"
   },
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --compile --outfile gh-copilot-usage",
-    "build:all": "./script/build.sh"
+    "dev": "bun run --watch src/main.ts",
+    "start": "bun run src/main.ts",
+    "build": "bun build src/main.ts --compile --outfile gh-copilot-usage",
+    "build:all": "./script/build.sh",
+    "test": "bun test"
   },
   "packageManager": "bun@1.3.9",
-  "devDependencies": {
-    "@types/bun": "1.3.9"
+  "dependencies": {
+    "errore": "^0.14.0",
+    "zod": "^4.3.6"
   },
-  "peerDependencies": {
+  "devDependencies": {
+    "@types/bun": "1.3.9",
     "typescript": "5.9.3"
   }
 }
