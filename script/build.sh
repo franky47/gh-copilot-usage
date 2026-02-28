@@ -13,14 +13,15 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
-# Set version from git tag (strip leading 'v')
-if [[ -n "${TAG_NAME}" ]]; then
-  version="${TAG_NAME#v}"
-  echo "Setting package.json version to ${version}..."
-  tmpfile="$(mktemp package.json.tmp.XXXXXX)"
-  trap 'rm -f "$tmpfile"' EXIT
-  jq --arg v "${version}" '.version = $v' package.json > "$tmpfile" && mv "$tmpfile" package.json
+# Set version from tag argument (strip leading 'v'), must be semver-ish
+if [[ ! "$1" =~ ^v?[0-9]+\.[0-9]+\.[0-9] ]]; then
+  echo "error: expected a semver tag as \$1, got: '${1}'"
+  exit 1
 fi
+
+version="${1#v}" # Strip leading 'v' if present
+echo "Setting package.json version to ${version}..."
+jq --arg v "${version}" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
 
 # Install dependencies
 echo "Installing dependencies..."
