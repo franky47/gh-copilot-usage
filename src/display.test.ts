@@ -144,3 +144,119 @@ describe('renderDisplay', () => {
     }
   })
 })
+
+describe('renderDisplay snapshots', () => {
+  test('zero usage, pro plan', () => {
+    const result = renderDisplay(makeUsageData(), 'pro', 300, RENDER_OPTIONS)
+    expect(result).toMatchSnapshot()
+  })
+
+  test('low usage (green zone), pro plan, single model', () => {
+    const modelCounts = new Map([['gpt-4o', 60]])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 60, modelCounts }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('mid usage (yellow zone), pro+ plan, multiple models', () => {
+    const modelCounts = new Map([
+      ['gpt-4o', 150],
+      ['claude-3.5-sonnet', 80],
+      ['o3-mini', 10],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 240, modelCounts }),
+      'pro+',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('high usage (red zone), business plan', () => {
+    const modelCounts = new Map([
+      ['gpt-4o', 500],
+      ['claude-3.5-sonnet', 280],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 780, modelCounts }),
+      'business',
+      800,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('usage exceeds limit (over 100%)', () => {
+    const modelCounts = new Map([['gpt-4o', 350]])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 350, modelCounts }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('long model name gets truncated', () => {
+    const modelCounts = new Map([
+      ['a-very-long-model-name-that-exceeds-limit', 100],
+      ['gpt-4o', 50],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 150, modelCounts }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('end of month, next reset in following year', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        month: '12',
+        monthName: 'December',
+        currentDay: 31,
+        daysInMonth: 31,
+        nextResetDate: new Date(2026, 0, 1),
+      }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('layout at 60 columns', () => {
+    const modelCounts = new Map([
+      ['gpt-4o', 120],
+      ['claude-3.5-sonnet', 60],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 180, modelCounts }),
+      'pro',
+      300,
+      { width: 60 },
+    )
+    expect(result).toMatchSnapshot()
+  })
+
+  test('layout at 100 columns', () => {
+    const modelCounts = new Map([
+      ['gpt-4o', 120],
+      ['claude-3.5-sonnet', 60],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 180, modelCounts }),
+      'pro',
+      300,
+      { width: 100 },
+    )
+    expect(result).toMatchSnapshot()
+  })
+})

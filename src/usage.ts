@@ -25,13 +25,13 @@ export class ParseError extends errore.createTaggedError({
   message: 'Failed to parse usage response: $reason',
 }) {}
 
-const UsageItemSchema = z.object({
+const usageItemSchema = z.object({
   grossQuantity: z.number(),
   model: z.string().optional(),
 })
 
-const UsageResponseSchema = z.object({
-  usageItems: z.array(UsageItemSchema).optional(),
+const usageResponseSchema = z.object({
+  usageItems: z.array(usageItemSchema).optional(),
 })
 
 export async function fetchUsage(
@@ -52,7 +52,7 @@ export async function fetchUsage(
   if (rawOrError instanceof FetchError) return rawOrError
   const raw: unknown = rawOrError
 
-  const parsed = UsageResponseSchema.safeParse(raw)
+  const parsed = usageResponseSchema.safeParse(raw)
   if (!parsed.success) {
     return new ParseError({ reason: parsed.error.message })
   }
@@ -104,7 +104,9 @@ export async function fetchUsername(
 
   const parsed = z.object({ login: z.string() }).safeParse(raw)
   if (!parsed.success) {
-    return new ParseError({ reason: 'Could not parse login from /user response' })
+    return new ParseError({
+      reason: 'Could not parse login from /user response',
+    })
   }
 
   return parsed.data.login
