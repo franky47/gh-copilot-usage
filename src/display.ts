@@ -60,37 +60,30 @@ function drawBoxBottom(width: number): string {
   return dim('└─' + '─'.repeat(width) + '─┘')
 }
 
-function printBoxLine(
-  text: string,
-  width: number,
-  stringWidth: (s: string) => number,
-): string {
-  const textW = stringWidth(text)
+function printBoxLine(text: string, width: number): string {
+  const textW = Bun.stringWidth(text)
   const padding = Math.floor((width - textW) / 2)
   const rightPad = width - textW - padding
-  return dim('│ ') + ' '.repeat(padding) + text + ' '.repeat(rightPad) + dim(' │')
+  return (
+    dim('│ ') + ' '.repeat(padding) + text + ' '.repeat(rightPad) + dim(' │')
+  )
 }
 
-function printBoxLeft(
-  text: string,
-  width: number,
-  stringWidth: (s: string) => number,
-): string {
-  const textW = stringWidth(text)
+function printBoxLeft(text: string, width: number): string {
+  const textW = Bun.stringWidth(text)
   const rightPad = width - textW
   return dim('│ ') + text + ' '.repeat(Math.max(0, rightPad)) + dim(' │')
 }
 
 export type RenderOptions = {
   width: number
-  stringWidth: (s: string) => number
 }
 
 export function renderDisplay(
   data: UsageData,
   plan: string,
   limit: number,
-  { width, stringWidth }: RenderOptions,
+  { width }: RenderOptions,
 ): string {
   const boxOuterWidth = width
   const boxInnerWidth = boxOuterWidth - 4
@@ -119,8 +112,8 @@ export function renderDisplay(
   const nextMonthName = nextResetDate.toLocaleString('en-US', { month: 'long' })
   const nextYear = nextResetDate.getFullYear()
 
-  const center = (text: string) => printBoxLine(text, boxInnerWidth, stringWidth)
-  const left = (text: string) => printBoxLeft(text, boxInnerWidth, stringWidth)
+  const center = (text: string) => printBoxLine(text, boxInnerWidth)
+  const left = (text: string) => printBoxLeft(text, boxInnerWidth)
 
   const hasUsage = Array.from(modelCounts.values()).some((count) => count > 0)
   let modelLines: string
@@ -159,7 +152,9 @@ export function renderDisplay(
       `Overall:  ${styleText('bold', totalUsage.toString())}${dim('/' + limit + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`,
     ),
     left(`Usage:    ${drawBar(totalUsage, limit, largeBarWidth)}`),
-    left(`Month:    ${drawMonthProgressBar(currentDay, daysInMonth, largeBarWidth)}`),
+    left(
+      `Month:    ${drawMonthProgressBar(currentDay, daysInMonth, largeBarWidth)}`,
+    ),
     center(''),
     left(
       styleText(

@@ -2,9 +2,9 @@
 
 import { $ } from 'bun'
 import { parseCliArgs } from './cli.ts'
-import { resolvePlan, resolveLimit } from './config.ts'
-import { fetchUsage, fetchUsername } from './usage.ts'
+import { resolveLimit, resolvePlan } from './config.ts'
 import { renderDisplay } from './display.ts'
+import { fetchUsage, fetchUsername } from './usage.ts'
 
 async function shellExec(cmd: string): Promise<string> {
   const [bin, ...args] = cmd.split(' ')
@@ -34,7 +34,12 @@ async function main() {
   }
 
   const plan = await resolvePlan(cliResult.plan, process.env, shellExec)
-  const limit = await resolveLimit(cliResult.limit, plan, process.env, shellExec)
+  const limit = await resolveLimit(
+    cliResult.limit,
+    plan,
+    process.env,
+    shellExec,
+  )
 
   const username = await fetchUsername(fetcher)
   if (username instanceof Error) {
@@ -48,10 +53,8 @@ async function main() {
     process.exit(1)
   }
 
-  const width = Math.min(80, process.stdout.columns ?? 80)
   const output = renderDisplay(usage, plan, limit, {
-    width,
-    stringWidth: Bun.stringWidth,
+    width: Math.min(80, process.stdout.columns ?? 80),
   })
   console.log(output)
 }

@@ -2,15 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { renderDisplay } from './display.ts'
 import type { UsageData } from './usage.ts'
 
-// Use a simple no-op stringWidth that ignores ANSI codes for test assertions
-// (we just want to verify structure, not pixel-perfect alignment)
-function plainStringWidth(s: string): number {
-  // Strip ANSI escape codes before measuring
-  // eslint-disable-next-line no-control-regex
-  return s.replace(/\x1B\[[0-9;]*m/g, '').length
-}
-
-const RENDER_OPTIONS = { width: 80, stringWidth: plainStringWidth }
+const RENDER_OPTIONS = { width: 80 }
 
 function makeUsageData(overrides: Partial<UsageData> = {}): UsageData {
   return {
@@ -51,7 +43,12 @@ describe('renderDisplay', () => {
   })
 
   test('shows "No premium requests used yet." when usage is zero', () => {
-    const result = renderDisplay(makeUsageData({ totalUsage: 0, modelCounts: new Map() }), 'pro', 300, RENDER_OPTIONS)
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 0, modelCounts: new Map() }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
     expect(result).toContain('No premium requests used yet.')
   })
 
@@ -143,7 +140,7 @@ describe('renderDisplay', () => {
       RENDER_OPTIONS,
     )
     for (const line of result.split('\n')) {
-      expect(plainStringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
     }
   })
 })
