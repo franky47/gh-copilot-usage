@@ -40,7 +40,7 @@ build_platform() {
   fi
 
   echo "Building for ${platform} (${target})..."
-  bun build src/main.ts --compile --target="${target}" --outfile="${output}"
+  bun build src/index.ts --compile --target="${target}" --outfile="${output}"
 }
 
 # Build for all platforms
