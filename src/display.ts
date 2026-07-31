@@ -97,6 +97,11 @@ function clampRepeatCount(count: number): number {
   return Math.floor(count)
 }
 
+function clampCurrentDay(currentDay: number, totalDays: number): number {
+  if (!(totalDays > 0)) return 0
+  return Math.min(Math.max(currentDay, 0), totalDays)
+}
+
 function drawBar(
   used: number,
   total: number,
@@ -106,7 +111,7 @@ function drawBar(
   if (width <= 0 || total <= 0) return ''
   const maxxed = Math.min(Math.max(used, 0), total)
   const filled = clampRepeatCount((maxxed * width) / total)
-  const empty = clampRepeatCount(width - filled)
+  const empty = width - filled
   return styleText(color, '█'.repeat(filled)) + dim('░'.repeat(empty))
 }
 
@@ -116,11 +121,9 @@ function drawMonthProgressBar(
   width: number,
 ): string {
   if (width <= 0) return ''
-  if (width === 1) return '|'
-  if (totalDays <= 0) return '|' + dim('⋅'.repeat(width - 1))
-
-  const ratio = Math.min(Math.max(currentDay, 0) / totalDays, 1)
-  const filled = clampRepeatCount(ratio * width)
+  const day = clampCurrentDay(currentDay, totalDays)
+  const filled =
+    totalDays > 0 ? clampRepeatCount((day * width) / totalDays) : 0
   const cursor = Math.min(filled, width - 1)
   const empty = width - cursor - 1
   return dim('⋅'.repeat(cursor)) + '|' + dim('⋅'.repeat(empty))
@@ -260,7 +263,7 @@ export function renderDisplay(
 
   const percentage = limit === null ? null : (totalUsage / limit) * 100
   const monthProgress =
-    daysInMonth > 0 ? Math.min(Math.max(currentDay, 0) / daysInMonth, 1) : 0
+    daysInMonth > 0 ? clampCurrentDay(currentDay, daysInMonth) / daysInMonth : 0
   const color =
     percentage === null ? 'green' : getOverallColor(percentage, monthProgress)
 

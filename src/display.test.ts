@@ -350,25 +350,66 @@ describe('renderDisplay', () => {
     expect(result).not.toContain('NaN')
   })
 
-  test('does not throw when month progress inputs are degenerate', () => {
-    const cases = [
-      { currentDay: 0, daysInMonth: 30 },
-      { currentDay: 40, daysInMonth: 30 },
-      { currentDay: 15, daysInMonth: 0 },
-      { currentDay: -1, daysInMonth: 30 },
-    ] as const
+  const degenerateCases = [
+    { currentDay: 0, daysInMonth: 30, cursorAtEnd: false },
+    { currentDay: 40, daysInMonth: 30, cursorAtEnd: true },
+    { currentDay: 15, daysInMonth: 0, cursorAtEnd: false },
+    { currentDay: -1, daysInMonth: 30, cursorAtEnd: false },
+  ] as const
 
-    for (const overrides of cases) {
+  test.each(degenerateCases)(
+    'clamps degenerate month progress inputs (day $currentDay of $daysInMonth)',
+    ({ currentDay, daysInMonth, cursorAtEnd }) => {
       const result = renderDisplay(
-        makeUsageData(overrides),
+        makeUsageData({ currentDay, daysInMonth }),
         'pro',
         300,
         RENDER_OPTIONS,
       )
-      expect(result.length).toBeGreaterThan(0)
+      const monthLine = result
+        .split('\n')
+        .find((line) => line.includes('Month:'))
+      expect(monthLine).toBeDefined()
+      const plain = monthLine!.replace(/\u001b\[[0-9;]*m/g, '')
+      if (cursorAtEnd) {
+        expect(plain).toMatch(/⋅+\|/)
+        expect(plain).not.toMatch(/\|⋅/)
+      } else {
+        expect(plain).toMatch(/\|⋅+/)
+        expect(plain).not.toMatch(/⋅\|/)
+      }
       expect(result).not.toContain('Infinity')
       expect(result).not.toContain('NaN')
-    }
+    },
+  )
+
+  test('keeps exact month cursor position at integer boundaries', () => {
+    const result = renderDisplay(
+      makeUsageData({ currentDay: 17, daysInMonth: 28 }),
+      'pro',
+      300,
+      { width: 98 },
+    )
+    const monthLine = result.split('\n').find((line) => line.includes('Month:'))
+    expect(monthLine).toBeDefined()
+    const plain = monthLine!.replace(/\u001b\[[0-9;]*m/g, '')
+    const dotsBeforeCursor = plain.indexOf('|') - plain.indexOf('⋅')
+    expect(dotsBeforeCursor).toBe(51)
+  })
+
+  test('does not throw on negative model usage counts', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: -5,
+        modelCounts: new Map([['gpt-5', -5]]),
+      }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    expect(result).toContain('-5')
+    expect(result).not.toContain('Infinity')
+    expect(result).not.toContain('NaN')
   })
 })
 
