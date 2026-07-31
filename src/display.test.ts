@@ -327,6 +327,49 @@ describe('renderDisplay', () => {
       expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
     }
   })
+
+  // https://github.com/franky47/gh-copilot-usage/issues/12
+  test('does not throw on the last day of the month', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        currentDay: 31,
+        daysInMonth: 31,
+        month: '01',
+        monthName: 'January',
+      }),
+      'pro',
+      300,
+      RENDER_OPTIONS,
+    )
+    const monthLine = result.split('\n').find((line) => line.includes('Month:'))
+    expect(monthLine).toBeDefined()
+    const plain = monthLine!.replace(/\u001b\[[0-9;]*m/g, '')
+    expect(plain).toMatch(/⋅+\|/)
+    expect(plain).not.toMatch(/\|⋅/)
+    expect(result).not.toContain('Infinity')
+    expect(result).not.toContain('NaN')
+  })
+
+  test('does not throw when month progress inputs are degenerate', () => {
+    const cases = [
+      { currentDay: 0, daysInMonth: 30 },
+      { currentDay: 40, daysInMonth: 30 },
+      { currentDay: 15, daysInMonth: 0 },
+      { currentDay: -1, daysInMonth: 30 },
+    ] as const
+
+    for (const overrides of cases) {
+      const result = renderDisplay(
+        makeUsageData(overrides),
+        'pro',
+        300,
+        RENDER_OPTIONS,
+      )
+      expect(result.length).toBeGreaterThan(0)
+      expect(result).not.toContain('Infinity')
+      expect(result).not.toContain('NaN')
+    }
+  })
 })
 
 describe('month-cursor color logic', () => {

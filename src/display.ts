@@ -92,15 +92,21 @@ function formatNarrowAmount(amount: number): string {
   return `${value}${suffix}`
 }
 
+function clampRepeatCount(count: number): number {
+  if (!Number.isFinite(count) || count <= 0) return 0
+  return Math.floor(count)
+}
+
 function drawBar(
   used: number,
   total: number,
   width: number,
   color: 'green' | 'yellow' | 'red',
 ): string {
-  const maxxed = Math.min(used, total)
-  const filled = Math.floor((maxxed * width) / total)
-  const empty = width - filled
+  if (width <= 0 || total <= 0) return ''
+  const maxxed = Math.min(Math.max(used, 0), total)
+  const filled = clampRepeatCount((maxxed * width) / total)
+  const empty = clampRepeatCount(width - filled)
   return styleText(color, '█'.repeat(filled)) + dim('░'.repeat(empty))
 }
 
@@ -109,12 +115,15 @@ function drawMonthProgressBar(
   totalDays: number,
   width: number,
 ): string {
-  const filled = Math.min(
-    Math.floor((currentDay * width) / totalDays),
-    width - 1,
-  )
-  const empty = width - filled - 1
-  return dim('⋅'.repeat(filled)) + '|' + dim('⋅'.repeat(empty))
+  if (width <= 0) return ''
+  if (width === 1) return '|'
+  if (totalDays <= 0) return '|' + dim('⋅'.repeat(width - 1))
+
+  const ratio = Math.min(Math.max(currentDay, 0) / totalDays, 1)
+  const filled = clampRepeatCount(ratio * width)
+  const cursor = Math.min(filled, width - 1)
+  const empty = width - cursor - 1
+  return dim('⋅'.repeat(cursor)) + '|' + dim('⋅'.repeat(empty))
 }
 
 function drawBoxTop(width: number): string {
@@ -250,7 +259,8 @@ export function renderDisplay(
         : 'No premium requests used yet.'
 
   const percentage = limit === null ? null : (totalUsage / limit) * 100
-  const monthProgress = currentDay / daysInMonth
+  const monthProgress =
+    daysInMonth > 0 ? Math.min(Math.max(currentDay, 0) / daysInMonth, 1) : 0
   const color =
     percentage === null ? 'green' : getOverallColor(percentage, monthProgress)
 
