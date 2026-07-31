@@ -25,15 +25,15 @@ describe('fetchUsername', () => {
 
 describe('fetchUsage', () => {
   test('requests the current AI credit endpoint', async () => {
-    let requestedPath = ''
+    const requestedPaths: string[] = []
     const fetcher = async (path: string) => {
-      requestedPath = path
-      return { usageItems: [] }
+      requestedPaths.push(path)
+      return { usageItems: [{ grossQuantity: 1 }] }
     }
 
     await fetchUsage('octocat', FIXED_DATE, fetcher)
 
-    expect(requestedPath).toBe(
+    expect(requestedPaths[0]).toBe(
       '/users/octocat/settings/billing/ai_credit/usage?year=2025&month=06',
     )
   })
@@ -73,6 +73,34 @@ describe('fetchUsage', () => {
     expect(requestedPaths).toEqual([
       '/users/octocat/settings/billing/ai_credit/usage?year=2025&month=06',
     ])
+  })
+
+  test('uses premium requests when AI credits are empty for an annual plan', async () => {
+    const fetcher = async (path: string) => {
+      if (path.includes('/ai_credit/')) return { usageItems: [] }
+      return { usageItems: [{ grossQuantity: 3, model: 'gpt-4o' }] }
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.billingUnit).toBe('premium-requests')
+    expect(result.totalUsage).toBe(3)
+  })
+
+  test('keeps an empty AI credit report when the legacy check fails', async () => {
+    const fetcher = async (path: string) => {
+      if (path.includes('/ai_credit/')) return { usageItems: [] }
+      throw new Error('gh: Forbidden (HTTP 403)')
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.billingUnit).toBe('ai-credits')
+    expect(result.totalUsage).toBe(0)
   })
 
   test('returns UsageData with aggregated model counts', async () => {

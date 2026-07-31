@@ -73,6 +73,28 @@ export async function fetchUsage(
   } else {
     raw = aiCredits
     billingUnit = 'ai-credits'
+
+    const parsedAiCredits = usageResponseSchema.safeParse(aiCredits)
+    if (
+      parsedAiCredits.success &&
+      (parsedAiCredits.data.usageItems?.length ?? 0) === 0
+    ) {
+      const premiumRequests = await fetchResponse(
+        `${pathPrefix}/premium_request/usage?${query}`,
+        fetcher,
+      )
+      if (!(premiumRequests instanceof FetchError)) {
+        const parsedPremiumRequests =
+          usageResponseSchema.safeParse(premiumRequests)
+        if (
+          parsedPremiumRequests.success &&
+          (parsedPremiumRequests.data.usageItems?.length ?? 0) > 0
+        ) {
+          raw = premiumRequests
+          billingUnit = 'premium-requests'
+        }
+      }
+    }
   }
 
   const parsed = usageResponseSchema.safeParse(raw)
