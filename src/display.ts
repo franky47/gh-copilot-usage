@@ -32,8 +32,20 @@ export function getModelColor(percentage: number): 'green' | 'yellow' | 'red' {
 }
 
 function formatPercentage(pct: number): string {
-  if (pct >= 1000) return `${(pct / 1000).toFixed(1)}k%`
-  return `${pct.toFixed(1)}%`
+  if (Math.abs(pct) < 1000) return `${pct.toFixed(1)}%`
+
+  const absolute = Math.abs(pct)
+  const [divisor, suffix] =
+    absolute >= 1_000_000_000_000_000
+      ? [1_000_000_000_000_000, 'q']
+      : absolute >= 1_000_000_000_000
+        ? [1_000_000_000_000, 't']
+        : absolute >= 1_000_000_000
+          ? [1_000_000_000, 'b']
+          : absolute >= 1_000_000
+            ? [1_000_000, 'm']
+            : [1000, 'k']
+  return `${Number((pct / divisor).toPrecision(2))}${suffix}%`
 }
 
 function formatUsageAmount(amount: number): string {

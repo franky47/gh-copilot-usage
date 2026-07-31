@@ -278,6 +278,21 @@ describe('renderDisplay', () => {
     }
   })
 
+  test('fits a very large percentage', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: 10000,
+        modelCounts: new Map([['gpt-4o', 10000]]),
+      }),
+      'pro',
+      1,
+      RENDER_OPTIONS,
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
+    }
+  })
+
   test('fits a large custom limit at 40 columns', () => {
     const result = renderDisplay(makeUsageData({ totalUsage: 10 }), 'pro', 123456789012345, {
       width: 40,
