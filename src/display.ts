@@ -69,20 +69,27 @@ function formatUsageAmount(amount: number): string {
 }
 
 function formatNarrowAmount(amount: number): string {
-  const absolute = Math.abs(amount)
-  if (absolute < 100) return Number(amount.toFixed(1)).toString()
+  if (Math.abs(amount) < 100) return Number(amount.toFixed(0)).toString()
 
-  const [divisor, suffix] =
-    absolute >= 1_000_000_000_000_000
-      ? [1_000_000_000_000_000, 'q']
-      : absolute >= 1_000_000_000_000
-        ? [1_000_000_000_000, 't']
-        : absolute >= 1_000_000_000
-          ? [1_000_000_000, 'b']
-          : absolute >= 1_000_000
-            ? [1_000_000, 'm']
-            : [1000, 'k']
-  return `${Number((amount / divisor).toPrecision(2))}${suffix}`
+  const units = [
+    [1000, 'k'],
+    [1_000_000, 'm'],
+    [1_000_000_000, 'b'],
+    [1_000_000_000_000, 't'],
+    [1_000_000_000_000_000, 'q'],
+  ] as const
+  let unitIndex = units.findLastIndex(([divisor]) => Math.abs(amount) >= divisor)
+  unitIndex = Math.max(0, unitIndex)
+
+  let [divisor, suffix] = units[unitIndex] ?? units[0]
+  let value = Number((amount / divisor).toPrecision(1))
+  if (Math.abs(value) >= 1000 && unitIndex < units.length - 1) {
+    const nextUnit = units[unitIndex + 1] ?? units[unitIndex] ?? units[0]
+    divisor = nextUnit[0]
+    suffix = nextUnit[1]
+    value = Number((amount / divisor).toPrecision(1))
+  }
+  return `${value}${suffix}`
 }
 
 function drawBar(

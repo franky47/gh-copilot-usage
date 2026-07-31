@@ -269,6 +269,18 @@ describe('renderDisplay', () => {
     }
   })
 
+  test('fits three-digit usage and limits at 20 columns', () => {
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 123 }),
+      'pro',
+      456,
+      { width: 20 },
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(20)
+    }
+  })
+
   test('uses a compact view below 20 columns', () => {
     const result = renderDisplay(makeUsageData({ totalUsage: 10 }), 'pro', 1500, {
       width: 10,
