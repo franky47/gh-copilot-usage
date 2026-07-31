@@ -2,7 +2,7 @@ import { styleText } from 'node:util'
 import type { UsageData } from './usage.ts'
 
 const MODEL_NAME_WIDTH = 22
-const MODEL_USAGE_COUNT_WIDTH = 5
+const MODEL_USAGE_COUNT_WIDTH = 8
 const MODEL_USAGE_PCT_WIDTH = 7
 
 function toTitleCase(str: string): string {
@@ -34,6 +34,18 @@ export function getModelColor(percentage: number): 'green' | 'yellow' | 'red' {
 function formatPercentage(pct: number): string {
   if (pct >= 1000) return `${(pct / 1000).toFixed(1)}k%`
   return `${pct.toFixed(1)}%`
+}
+
+function formatUsageAmount(amount: number): string {
+  const absolute = Math.abs(amount)
+  const divisor = absolute >= 1_000_000 ? 1_000_000 : absolute >= 100_000 ? 1000 : 1
+  const suffix = divisor === 1_000_000 ? 'm' : divisor === 1000 ? 'k' : ''
+  return (
+    (amount / divisor)
+      .toFixed(2)
+      .replace(/\.00$/, '')
+      .replace(/(\.\d)0$/, '$1') + suffix
+  )
 }
 
 function drawBar(
@@ -74,12 +86,28 @@ function drawBoxBottom(width: number): string {
 }
 
 function printBoxLine(text: string, width: number): string {
-  const textW = Bun.stringWidth(text)
+  const fittedText = fitText(text, width)
+  const textW = Bun.stringWidth(fittedText)
   const padding = Math.floor((width - textW) / 2)
   const rightPad = width - textW - padding
   return (
-    dim('│ ') + ' '.repeat(padding) + text + ' '.repeat(rightPad) + dim(' │')
+    dim('│ ') +
+    ' '.repeat(padding) +
+    fittedText +
+    ' '.repeat(rightPad) +
+    dim(' │')
   )
+}
+
+function fitText(text: string, width: number): string {
+  if (Bun.stringWidth(text) <= width) return text
+
+  let fitted = ''
+  for (const character of text) {
+    if (Bun.stringWidth(fitted + character + '…') > width) break
+    fitted += character
+  }
+  return fitted + '…'
 }
 
 function printBoxLeft(text: string, width: number): string {
@@ -127,9 +155,10 @@ export type RenderOptions = {
 export function renderDisplay(
   data: UsageData,
   plan: string,
-  limit: number,
-  { width }: RenderOptions,
+  limit: number | null,
+  { width: requestedWidth }: RenderOptions,
 ): string {
+  const width = Math.max(40, requestedWidth)
   const boxOuterWidth = width
   const boxInnerWidth = boxOuterWidth - 4
   const largeBarWidth = boxInnerWidth - 10
@@ -150,20 +179,31 @@ export function renderDisplay(
     daysInMonth,
     nextResetDate,
     now,
+    billingUnit,
   } = data
+  const usesAiCredits = billingUnit === 'ai-credits'
+  const usageTitle = usesAiCredits ? 'AI Credit Usage' : 'Premium Request Usage'
+  const emptyUsage = usesAiCredits
+    ? 'No AI credits used yet.'
+    : 'No premium requests used yet.'
 
-  const percentage = (totalUsage / limit) * 100
+  const percentage = limit === null ? null : (totalUsage / limit) * 100
   const monthProgress = currentDay / daysInMonth
-  const color = getOverallColor(percentage, monthProgress)
+  const color =
+    percentage === null ? 'green' : getOverallColor(percentage, monthProgress)
 
-  const nextMonthName = nextResetDate.toLocaleString('en-US', { month: 'long' })
-  const nextYear = nextResetDate.getFullYear()
+  const nextMonthName = nextResetDate.toLocaleString('en-US', {
+    month: 'long',
+    timeZone: 'UTC',
+  })
+  const nextYear = nextResetDate.getUTCFullYear()
   const timeUntilReset =
     width >= 60 ? formatTimeUntilReset(now, nextResetDate) : null
-  const resetLabel = styleText(
-    color === 'green' ? 'dim' : color,
-    `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`,
-  )
+  const resetText =
+    width < 60
+      ? `Resets: ${nextMonthName} 1, ${nextYear}`
+      : `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`
+  const resetLabel = styleText(color === 'green' ? 'dim' : color, resetText)
 
   const center = (text: string) => printBoxLine(text, boxInnerWidth)
   const left = (text: string) => printBoxLeft(text, boxInnerWidth)
@@ -172,7 +212,7 @@ export function renderDisplay(
   let modelLines: string
 
   if (!hasUsage) {
-    modelLines = left('No premium requests used yet.')
+    modelLines = left(emptyUsage)
   } else {
     const modelsSorted = Array.from(modelCounts.entries()).sort(
       (a, b) => b[1] - a[1],
@@ -181,36 +221,53 @@ export function renderDisplay(
     for (const [model, modelCount] of modelsSorted) {
       if (modelCount === 0) continue
 
-      const modelPctValue = (modelCount / limit) * 100
-      const modelPct = formatPercentage(modelPctValue)
       let modelDisplay = model
       if (model.length > MODEL_NAME_WIDTH) {
         modelDisplay = model.substring(0, MODEL_NAME_WIDTH - 1) + '…'
       }
 
+      const amount = formatUsageAmount(modelCount).padStart(
+        MODEL_USAGE_COUNT_WIDTH,
+      )
+      if (limit === null || smallBarWidth < 1) {
+        lines.push(left(`${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${amount}`))
+        continue
+      }
+
+      const modelPctValue = (modelCount / limit) * 100
+      const modelPct = formatPercentage(modelPctValue)
       const smallBar = drawBar(
         modelCount,
         limit,
         smallBarWidth,
         getModelColor(modelPctValue),
       )
-      const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${String(Math.round(modelCount)).padStart(MODEL_USAGE_COUNT_WIDTH)} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
+      const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${amount} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
       lines.push(left(modelLine))
     }
     modelLines = lines.join('\n')
   }
 
+  const overall =
+    limit === null || percentage === null
+      ? `Overall:  ${styleText('bold', formatUsageAmount(totalUsage))}${dim(' AI credits')}`
+      : `Overall:  ${styleText('bold', formatUsageAmount(totalUsage))}${dim('/' + limit + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`
+  const usage =
+    limit === null
+      ? []
+      : [left(`Usage:    ${drawBar(totalUsage, limit, largeBarWidth, color)}`)]
+
   return [
     drawBoxTop(boxInnerWidth),
     center(''),
-    center(`GitHub Copilot ${toTitleCase(plan)} - Premium Requests Usage`),
+    center(
+      `${width < 50 ? 'Copilot' : 'GitHub Copilot'} ${toTitleCase(plan)} - ${usageTitle}`,
+    ),
     center(`${monthName} ${year} • ${username}`),
     center(''),
     drawBoxSeparator(boxInnerWidth),
-    left(
-      `Overall:  ${styleText('bold', totalUsage.toString())}${dim('/' + limit + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`,
-    ),
-    left(`Usage:    ${drawBar(totalUsage, limit, largeBarWidth, color)}`),
+    left(overall),
+    ...usage,
     left(
       `Month:    ${drawMonthProgressBar(currentDay, daysInMonth, largeBarWidth)}`,
     ),

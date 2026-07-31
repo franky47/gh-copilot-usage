@@ -1,14 +1,13 @@
-> A GitHub CLI extension to display your GitHub Copilot premium request usage statistics
+> A GitHub CLI extension that shows your GitHub Copilot AI credit usage
 
-![Screenshot](./screenshot.png)
 
 ## Features
 
-- 📊 Shows a summary of your usage for the current month
-- 📅 Visual indicator of where you are in the billing cycle
-- 🤖 Breakdown of usage per AI model
-- 🎨 Color-coded progress bars (green → yellow → red)
-- ⚙️ Flexible configuration options
+- 📊 Shows your AI credit use for the current month
+- 📅 Shows where you are in the billing cycle
+- 🤖 Breaks down AI credit use by model
+- 🎨 Uses color-coded progress bars (green → yellow → red)
+- ⚙️ Supports plan and allowance settings
 
 The month indicator helps you pace your usage throughout the billing cycle:
 
@@ -59,7 +58,7 @@ gh copilot-usage --plan pro+
 gh copilot-usage --limit 500
 
 # Combine plan and custom limit (shows plan in UI, uses custom limit)
-gh copilot-usage --plan enterprise --limit 2000
+gh copilot-usage --plan max --limit 25000
 
 # Show help
 gh copilot-usage --help
@@ -70,11 +69,11 @@ gh copilot-usage --version
 
 ## Configuration
 
-Both the plan and monthly premium request limit can be configured. The extension checks configuration sources in priority order for each setting independently.
+You can set the plan and monthly AI credit allowance. The extension checks each setting in the order shown below.
 
 ### Plan Configuration
 
-The plan determines which plan name appears in the UI and the default limit if no custom limit is set. The plan can be configured in the following priority order:
+The plan sets the name in the UI and the default allowance. You can set it in these ways:
 
 1. **CLI flag** (highest priority)
 
@@ -103,7 +102,7 @@ The plan determines which plan name appears in the UI and the default limit if n
 
 ### Limit Configuration
 
-The monthly premium request limit can be configured separately and will override the plan's default limit. The limit uses the following priority order:
+A custom limit overrides the plan's AI credit allowance. The extension reads it in this order:
 
 1. **CLI flag** (highest priority)
 
@@ -125,32 +124,39 @@ The monthly premium request limit can be configured separately and will override
    gh copilot-usage
    ```
 
-4. **Plan's default limit** (based on selected plan)
+4. **Plan's default allowance**
 
 ### Available Plans
 
-| Plan | Limit | Description |
-|------|-------|-------------|
-| `free` | 50 | GitHub Copilot Free tier |
-| `pro` | 300 | GitHub Copilot Pro (default) |
-| `pro+` | 1500 | GitHub Copilot Pro+ |
-| `business` | 300 | GitHub Copilot Business |
-| `enterprise` | 1000 | GitHub Copilot Enterprise |
+| Plan | Monthly AI credits | Description |
+|------|-------------------:|-------------|
+| `free` | Not fixed | GitHub Copilot Free |
+| `student` | Not fixed | GitHub Copilot Student |
+| `pro` | 1,500 | GitHub Copilot Pro (default) |
+| `pro+` | 7,000 | GitHub Copilot Pro+ |
+| `max` | 20,000 | GitHub Copilot Max |
+
+GitHub does not publish a fixed AI credit allowance for Copilot Free or Student. The extension shows raw use for these plans. Set `--limit` to show a percentage and progress bars.
 
 ## Requirements
 
 - [GitHub CLI](https://cli.github.com/) (`gh`) must be installed and authenticated
-- Your GitHub account must have a user scope for billing API access
-  - If you see authentication errors, run: `gh auth refresh -s user`
+- Your GitHub account must have the `user` scope for billing API access
+  - If you see an auth error, run: `gh auth refresh -h github.com -s user`
+- User-level reports only include Copilot plans billed to your personal account. The extension does not support plans billed through an organization.
 
 ## How it Works
 
-The extension uses the GitHub API to fetch your premium request usage data and displays it in a beautiful terminal UI. It tracks:
+The extension reads the GitHub billing AI credit report for your user account. It shows:
 
-- Total premium requests used vs. your monthly limit
-- Current position in the billing cycle
-- Per-model breakdown of usage
-- Next reset date
+- AI credits used against your monthly allowance
+- Your current place in the billing cycle
+- AI credit use by model
+- The next reset date
+
+One AI credit equals $0.01 USD. GitHub resets included credits at 00:00 UTC on the first day of each month.
+
+Annual Pro and Pro+ plans can still use the old premium request billing model until they expire. The extension falls back to the premium request report and old plan limit when the AI credit report is not available.
 
 ## Upgrading
 
@@ -183,7 +189,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 bun install
 
 # Run locally
-bun run src/index.ts
+bun run src/main.ts
 
 # Build for local platform
 bun run build

@@ -21,6 +21,7 @@ function makeUsageData(overrides: Partial<UsageData> = {}): UsageData {
     now: new Date(Date.UTC(2025, 5, 15)), // June 15 UTC — >7 days before reset
     totalUsage: 0,
     modelCounts: new Map(),
+    billingUnit: 'ai-credits',
     ...overrides,
   }
 }
@@ -48,29 +49,60 @@ describe('renderDisplay', () => {
     expect(result).toContain('Pro+')
   })
 
-  test('shows "No premium requests used yet." when usage is zero', () => {
+  test('uses AI credit terms', () => {
     const result = renderDisplay(
       makeUsageData({ totalUsage: 0, modelCounts: new Map() }),
       'pro',
-      300,
+      1500,
       RENDER_OPTIONS,
     )
-    expect(result).toContain('No premium requests used yet.')
+    expect(result).toContain('AI Credit Usage')
+    expect(result).toContain('No AI credits used yet.')
+    expect(result).not.toContain('premium request')
   })
 
-  test('shows per-model breakdown when usage exists', () => {
-    const modelCounts = new Map([
-      ['gpt-4o', 100],
-      ['claude-3.5-sonnet', 50],
-    ])
+  test('uses premium request terms for annual plans', () => {
     const result = renderDisplay(
-      makeUsageData({ totalUsage: 150, modelCounts }),
+      makeUsageData({ billingUnit: 'premium-requests' }),
       'pro',
       300,
       RENDER_OPTIONS,
     )
+    expect(result).toContain('Premium Request Usage')
+    expect(result).toContain('No premium requests used yet.')
+  })
+
+  test('shows usage without a percentage when the plan has no fixed allowance', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: 12.5,
+        modelCounts: new Map([['auto', 12.5]]),
+      }),
+      'free',
+      null,
+      RENDER_OPTIONS,
+    )
+    expect(result).toContain('Overall:')
+    expect(result).toContain('12.5')
+    expect(result).not.toContain('Infinity')
+    expect(result).not.toContain('NaN')
+  })
+
+  test('shows per-model breakdown with fractional credits', () => {
+    const modelCounts = new Map([
+      ['gpt-4o', 100.25],
+      ['claude-3.5-sonnet', 50.5],
+    ])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 150.75, modelCounts }),
+      'pro',
+      1500,
+      RENDER_OPTIONS,
+    )
     expect(result).toContain('gpt-4o')
+    expect(result).toContain('100.25')
     expect(result).toContain('claude-3.5-sonnet')
+    expect(result).toContain('50.5')
   })
 
   test('sorts models by usage descending', () => {
@@ -147,6 +179,81 @@ describe('renderDisplay', () => {
     )
     for (const line of result.split('\n')) {
       expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
+    }
+  })
+
+  test('uses UTC for the reset label', () => {
+    const originalTimeZone = process.env.TZ
+    process.env.TZ = 'America/Los_Angeles'
+    try {
+      const result = renderDisplay(
+        makeUsageData({
+          nextResetDate: new Date('2026-01-01T00:00:00Z'),
+        }),
+        'pro',
+        1500,
+        RENDER_OPTIONS,
+      )
+      expect(result).toContain('January 1, 2026 at 00:00 UTC')
+    } finally {
+      if (originalTimeZone === undefined) delete process.env.TZ
+      else process.env.TZ = originalTimeZone
+    }
+  })
+
+  test('each output line fits when a credit amount is large', () => {
+    const modelCounts = new Map([['gpt-4o', 123456.78]])
+    const result = renderDisplay(
+      makeUsageData({ totalUsage: 123456.78, modelCounts }),
+      'max',
+      20000,
+      RENDER_OPTIONS,
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(RENDER_OPTIONS.width)
+    }
+  })
+
+  test('uses a narrow model layout when bars do not fit', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: 10,
+        modelCounts: new Map([['gpt-4o', 10]]),
+      }),
+      'pro',
+      1500,
+      { width: 40 },
+    )
+    expect(result).toContain('gpt-4o')
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(40)
+    }
+  })
+
+  test('fits a long username in a narrow layout', () => {
+    const result = renderDisplay(
+      makeUsageData({ username: 'a-very-long-github-username-that-does-not-fit' }),
+      'pro',
+      1500,
+      { width: 40 },
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(40)
+    }
+  })
+
+  test('uses a safe minimum width', () => {
+    const result = renderDisplay(
+      makeUsageData({
+        totalUsage: 10,
+        modelCounts: new Map([['gpt-4o', 10]]),
+      }),
+      'pro',
+      1500,
+      { width: 20 },
+    )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(40)
     }
   })
 
@@ -285,14 +392,14 @@ describe('renderDisplay snapshots', () => {
     expect(result).toMatchSnapshot()
   })
 
-  test('high usage (red zone), business plan', () => {
+  test('high usage (red zone), max plan', () => {
     const modelCounts = new Map([
       ['gpt-4o', 500],
       ['claude-3.5-sonnet', 280],
     ])
     const result = renderDisplay(
       makeUsageData({ totalUsage: 780, modelCounts }),
-      'business',
+      'max',
       800,
       RENDER_OPTIONS,
     )
