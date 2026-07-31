@@ -24,6 +24,85 @@ describe('fetchUsername', () => {
 })
 
 describe('fetchUsage', () => {
+  test('requests the current AI credit endpoint', async () => {
+    const requestedPaths: string[] = []
+    const fetcher = async (path: string) => {
+      requestedPaths.push(path)
+      return { usageItems: [{ grossQuantity: 1 }] }
+    }
+
+    await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(requestedPaths[0]).toBe(
+      '/users/octocat/settings/billing/ai_credit/usage?year=2025&month=06',
+    )
+  })
+
+  test('falls back to premium requests for annual plans', async () => {
+    const requestedPaths: string[] = []
+    const fetcher = async (path: string) => {
+      requestedPaths.push(path)
+      if (path.includes('/ai_credit/')) {
+        throw new Error('gh: Not Found (HTTP 404)')
+      }
+      return { usageItems: [{ grossQuantity: 3, model: 'gpt-4o' }] }
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(requestedPaths).toEqual([
+      '/users/octocat/settings/billing/ai_credit/usage?year=2025&month=06',
+      '/users/octocat/settings/billing/premium_request/usage?year=2025&month=06',
+    ])
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.billingUnit).toBe('premium-requests')
+    expect(result.totalUsage).toBe(3)
+  })
+
+  test('does not fall back for non-404 API errors', async () => {
+    const requestedPaths: string[] = []
+    const fetcher = async (path: string) => {
+      requestedPaths.push(path)
+      throw new Error('gh: Forbidden (HTTP 403)')
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(result).toBeInstanceOf(FetchError)
+    expect(requestedPaths).toEqual([
+      '/users/octocat/settings/billing/ai_credit/usage?year=2025&month=06',
+    ])
+  })
+
+  test('uses premium requests when AI credits are empty for an annual plan', async () => {
+    const fetcher = async (path: string) => {
+      if (path.includes('/ai_credit/')) return { usageItems: [] }
+      return { usageItems: [{ grossQuantity: 3, model: 'gpt-4o' }] }
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.billingUnit).toBe('premium-requests')
+    expect(result.totalUsage).toBe(3)
+  })
+
+  test('keeps an empty AI credit report when the legacy check fails', async () => {
+    const fetcher = async (path: string) => {
+      if (path.includes('/ai_credit/')) return { usageItems: [] }
+      throw new Error('gh: Forbidden (HTTP 403)')
+    }
+
+    const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
+
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+    expect(result.billingUnit).toBe('ai-credits')
+    expect(result.totalUsage).toBe(0)
+  })
+
   test('returns UsageData with aggregated model counts', async () => {
     const fetcher = async () => ({
       usageItems: [
@@ -36,6 +115,7 @@ describe('fetchUsage', () => {
     expect(result).not.toBeInstanceOf(Error)
     if (result instanceof Error) return
 
+    expect(result.billingUnit).toBe('ai-credits')
     expect(result.totalUsage).toBe(18)
     expect(result.modelCounts.get('gpt-4o')).toBe(15)
     expect(result.modelCounts.get('claude-3.5-sonnet')).toBe(3)
@@ -82,6 +162,19 @@ describe('fetchUsage', () => {
     const fetcher = async () => ({ usageItems: [{ grossQuantity: 'not-a-number' }] })
     const result = await fetchUsage('octocat', FIXED_DATE, fetcher)
     expect(result).toBeInstanceOf(ParseError)
+  })
+
+  test('uses the UTC billing month near a local month boundary', async () => {
+    const fetcher = async () => ({ usageItems: [] })
+    const localJulyUtcJune = new Date('2025-07-01T00:30:00+02:00')
+    const result = await fetchUsage('octocat', localJulyUtcJune, fetcher)
+    expect(result).not.toBeInstanceOf(Error)
+    if (result instanceof Error) return
+
+    expect(result.year).toBe(2025)
+    expect(result.month).toBe('06')
+    expect(result.monthName).toBe('June')
+    expect(result.currentDay).toBe(30)
   })
 
   test('populates date fields correctly', async () => {

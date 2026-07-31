@@ -50,7 +50,13 @@ describe('parseCliArgs', () => {
 
   describe('--plan', () => {
     test('accepts valid plan names', () => {
-      for (const plan of ['free', 'pro', 'pro+', 'business', 'enterprise']) {
+      for (const plan of [
+        'free',
+        'student',
+        'pro',
+        'pro+',
+        'max',
+      ]) {
         const result = parseCliArgs(argv('--plan', plan))
         expect(result).not.toBeInstanceOf(Error)
         if (result instanceof Error) return
@@ -136,13 +142,13 @@ describe('parseCliArgs', () => {
     })
 
     test('plan and limit can be combined', () => {
-      const result = parseCliArgs(argv('--plan', 'business', '--limit', '400'))
+      const result = parseCliArgs(argv('--plan', 'max', '--limit', '25000'))
       expect(result).not.toBeInstanceOf(Error)
       if (result instanceof Error) return
       expect(result.action).toBe('run')
       if (result.action !== 'run') return
-      expect(result.plan).toBe('business')
-      expect(result.limit).toBe(400)
+      expect(result.plan).toBe('max')
+      expect(result.limit).toBe(25000)
     })
   })
 

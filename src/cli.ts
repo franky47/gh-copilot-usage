@@ -58,14 +58,14 @@ export function parseCliArgs(
     return {
       action: 'help',
       text: `
-GitHub Copilot Premium Requests Usage Tracker v${VERSION}
+GitHub Copilot AI Credit Usage Tracker v${VERSION}
 
 Usage:
   gh copilot-usage [options]
 
 Options:
   --plan <name>       Set your Copilot plan (${Object.keys(PLANS).join(', ')})
-  --limit <number>    Set custom monthly premium request limits
+  --limit <number>    Set a custom monthly AI credit allowance
   --help, -h          Show this help message
   --version, -v       Show version information
 
@@ -80,7 +80,10 @@ Configuration:
     1. Command line flag: --limit 300
     2. Environment variable: GH_COPILOT_LIMIT=300
     3. gh config: gh config set copilot-usage.limit 300
-    4. Plan's default limit (based on selected plan)
+    4. Plan's default allowance (based on selected plan)
+
+  GitHub does not publish a fixed AI credit allowance for Copilot Free or
+  Copilot Student. Use --limit for percentage and progress bars on those plans.
 
 Examples:
   gh copilot-usage
@@ -98,7 +101,7 @@ Examples:
   let plan: string | undefined
   if (rawPlan !== undefined) {
     const planKey = rawPlan.toLowerCase()
-    if (!PLANS[planKey]) {
+    if (!Object.hasOwn(PLANS, planKey)) {
       return new InvalidPlanError({
         plan: rawPlan,
         validPlans: Object.keys(PLANS).join(', '),

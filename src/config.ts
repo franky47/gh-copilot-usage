@@ -1,11 +1,17 @@
 import * as errore from 'errore'
+import type { BillingUnit } from './usage.ts'
 
-export const PLANS: Record<string, number> = {
-  free: 50,
+export const PLANS: Record<string, number | null> = {
+  free: null,
+  student: null,
+  pro: 1500,
+  'pro+': 7000,
+  max: 20000,
+}
+
+const LEGACY_PLAN_LIMITS: Record<string, number> = {
   pro: 300,
   'pro+': 1500,
-  business: 300,
-  enterprise: 1000,
 }
 
 export const DEFAULT_PLAN = 'pro'
@@ -27,7 +33,10 @@ export async function resolvePlan(
   }
 
   const envPlan = env.GH_COPILOT_PLAN
-  if (envPlan !== undefined && PLANS[envPlan.toLowerCase()]) {
+  if (
+    envPlan !== undefined &&
+    Object.hasOwn(PLANS, envPlan.toLowerCase())
+  ) {
     return envPlan.toLowerCase()
   }
 
@@ -37,7 +46,7 @@ export async function resolvePlan(
     return DEFAULT_PLAN
   }
   const planKey = configPlan.trim().toLowerCase()
-  if (PLANS[planKey]) {
+  if (Object.hasOwn(PLANS, planKey)) {
     return planKey
   }
 
@@ -49,7 +58,8 @@ export async function resolveLimit(
   plan: string,
   env: NodeJS.ProcessEnv,
   shellExec: ShellExec,
-): Promise<number> {
+  billingUnit: BillingUnit = 'ai-credits',
+): Promise<number | null> {
   if (cliLimit !== undefined) {
     return cliLimit
   }
@@ -65,14 +75,21 @@ export async function resolveLimit(
   const configLimit = await readGhConfig('copilot-usage.limit', shellExec)
   if (configLimit instanceof ConfigReadError) {
     // Config key not set — fall through to plan default (not an error)
-    return PLANS[plan] ?? 300
+    return planAllowance(plan, billingUnit)
   }
   const parsed = parseInt(configLimit.trim(), 10)
   if (!isNaN(parsed) && parsed > 0) {
     return parsed
   }
 
-  return PLANS[plan] ?? 300
+  return planAllowance(plan, billingUnit)
+}
+
+function planAllowance(plan: string, billingUnit: BillingUnit): number | null {
+  if (billingUnit === 'premium-requests') {
+    return LEGACY_PLAN_LIMITS[plan] ?? LEGACY_PLAN_LIMITS.pro ?? 300
+  }
+  return Object.hasOwn(PLANS, plan) ? (PLANS[plan] ?? null) : 1500
 }
 
 async function readGhConfig(

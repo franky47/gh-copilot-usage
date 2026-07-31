@@ -12,7 +12,12 @@ async function shellExec(cmd: string): Promise<string> {
 }
 
 async function fetcher(path: string): Promise<unknown> {
-  return $`gh api ${path}`.json()
+  const output = await $`gh api ${path}`.quiet().nothrow()
+  if (output.exitCode !== 0) {
+    const reason = output.stderr.toString().trim()
+    throw new Error(reason || `gh api failed with exit code ${output.exitCode}`)
+  }
+  return output.json()
 }
 
 async function main() {
@@ -34,12 +39,6 @@ async function main() {
   }
 
   const plan = await resolvePlan(cliResult.plan, process.env, shellExec)
-  const limit = await resolveLimit(
-    cliResult.limit,
-    plan,
-    process.env,
-    shellExec,
-  )
 
   const username = await fetchUsername(fetcher)
   if (username instanceof Error) {
@@ -53,6 +52,13 @@ async function main() {
     process.exit(1)
   }
 
+  const limit = await resolveLimit(
+    cliResult.limit,
+    plan,
+    process.env,
+    shellExec,
+    usage.billingUnit,
+  )
   const output = renderDisplay(usage, plan, limit, {
     width: Math.min(80, process.stdout.columns ?? 80),
   })
