@@ -1,5 +1,6 @@
 > A GitHub CLI extension that shows your GitHub Copilot AI credit usage
 
+![](./screenshot.png)
 
 ## Features
 
