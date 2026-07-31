@@ -1,6 +1,6 @@
 {
   "name": "gh-copilot-usage",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "description": "GitHub CLI extension to display GitHub Copilot AI credit usage",
   "type": "module",
   "license": "MIT",
