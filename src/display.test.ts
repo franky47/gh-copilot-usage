@@ -242,14 +242,14 @@ describe('renderDisplay', () => {
     }
   })
 
-  test('honors a 20-column width', () => {
+  test('honors a 20-column width with Max usage', () => {
     const result = renderDisplay(
       makeUsageData({
-        totalUsage: 10,
-        modelCounts: new Map([['gpt-4o', 10]]),
+        totalUsage: 10000,
+        modelCounts: new Map([['gpt-4o', 10000]]),
       }),
-      'pro',
-      1500,
+      'max',
+      20000,
       { width: 20 },
     )
     for (const line of result.split('\n')) {

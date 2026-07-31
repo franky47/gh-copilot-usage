@@ -56,6 +56,11 @@ function formatUsageAmount(amount: number): string {
   )
 }
 
+function formatNarrowAmount(amount: number): string {
+  if (Math.abs(amount) < 1000) return formatUsageAmount(amount)
+  return `${Number((amount / 1000).toFixed(2))}k`
+}
+
 function drawBar(
   used: number,
   total: number,
@@ -276,8 +281,9 @@ export function renderDisplay(
     modelLines = lines.join('\n')
   }
 
-  const totalLabel = formatUsageAmount(totalUsage)
-  const limitLabel = limit === null ? null : formatUsageAmount(limit)
+  const amountFormatter = width < 40 ? formatNarrowAmount : formatUsageAmount
+  const totalLabel = amountFormatter(totalUsage)
+  const limitLabel = limit === null ? null : amountFormatter(limit)
   const overall =
     width < 40
       ? `Used: ${styleText('bold', totalLabel)}${limitLabel === null ? '' : dim('/' + limitLabel)}`
