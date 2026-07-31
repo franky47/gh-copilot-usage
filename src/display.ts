@@ -57,8 +57,20 @@ function formatUsageAmount(amount: number): string {
 }
 
 function formatNarrowAmount(amount: number): string {
-  if (Math.abs(amount) < 1000) return formatUsageAmount(amount)
-  return `${Number((amount / 1000).toFixed(2))}k`
+  const absolute = Math.abs(amount)
+  if (absolute < 100) return Number(amount.toFixed(1)).toString()
+
+  const [divisor, suffix] =
+    absolute >= 1_000_000_000_000_000
+      ? [1_000_000_000_000_000, 'q']
+      : absolute >= 1_000_000_000_000
+        ? [1_000_000_000_000, 't']
+        : absolute >= 1_000_000_000
+          ? [1_000_000_000, 'b']
+          : absolute >= 1_000_000
+            ? [1_000_000, 'm']
+            : [1000, 'k']
+  return `${Number((amount / divisor).toPrecision(2))}${suffix}`
 }
 
 function drawBar(
