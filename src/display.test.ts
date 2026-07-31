@@ -242,7 +242,7 @@ describe('renderDisplay', () => {
     }
   })
 
-  test('uses a safe minimum width', () => {
+  test('honors a 20-column width', () => {
     const result = renderDisplay(
       makeUsageData({
         totalUsage: 10,
@@ -252,6 +252,24 @@ describe('renderDisplay', () => {
       1500,
       { width: 20 },
     )
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(20)
+    }
+  })
+
+  test('uses a compact view below 20 columns', () => {
+    const result = renderDisplay(makeUsageData({ totalUsage: 10 }), 'pro', 1500, {
+      width: 10,
+    })
+    for (const line of result.split('\n')) {
+      expect(Bun.stringWidth(line)).toBeLessThanOrEqual(10)
+    }
+  })
+
+  test('fits a large custom limit at 40 columns', () => {
+    const result = renderDisplay(makeUsageData({ totalUsage: 10 }), 'pro', 123456789012345, {
+      width: 40,
+    })
     for (const line of result.split('\n')) {
       expect(Bun.stringWidth(line)).toBeLessThanOrEqual(40)
     }

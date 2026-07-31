@@ -38,8 +38,16 @@ function formatPercentage(pct: number): string {
 
 function formatUsageAmount(amount: number): string {
   const absolute = Math.abs(amount)
-  const divisor = absolute >= 1_000_000 ? 1_000_000 : absolute >= 100_000 ? 1000 : 1
-  const suffix = divisor === 1_000_000 ? 'm' : divisor === 1000 ? 'k' : ''
+  const [divisor, suffix] =
+    absolute >= 1_000_000_000_000
+      ? [1_000_000_000_000, 't']
+      : absolute >= 1_000_000_000
+        ? [1_000_000_000, 'b']
+        : absolute >= 1_000_000
+          ? [1_000_000, 'm']
+          : absolute >= 100_000
+            ? [1000, 'k']
+            : [1, '']
   return (
     (amount / divisor)
       .toFixed(2)
@@ -148,6 +156,15 @@ export function formatTimeUntilReset(
   return `in ${totalHours}h ${remainingMinutes}min`
 }
 
+function renderCompact(data: UsageData, plan: string, width: number): string {
+  const unit = data.billingUnit === 'ai-credits' ? 'credits' : 'requests'
+  return [
+    fitText(`Copilot ${toTitleCase(plan)}`, width),
+    fitText(`${formatUsageAmount(data.totalUsage)} ${unit}`, width),
+    '',
+  ].join('\n')
+}
+
 export type RenderOptions = {
   width: number
 }
@@ -158,13 +175,19 @@ export function renderDisplay(
   limit: number | null,
   { width: requestedWidth }: RenderOptions,
 ): string {
-  const width = Math.max(40, requestedWidth)
+  const width = Math.max(1, requestedWidth)
+  if (width < 20) return renderCompact(data, plan, width)
+
   const boxOuterWidth = width
   const boxInnerWidth = boxOuterWidth - 4
   const largeBarWidth = boxInnerWidth - 10
+  const modelNameWidth = Math.min(
+    MODEL_NAME_WIDTH,
+    Math.max(1, boxInnerWidth - MODEL_USAGE_COUNT_WIDTH),
+  )
   const smallBarWidth =
     boxInnerWidth -
-    MODEL_NAME_WIDTH -
+    modelNameWidth -
     MODEL_USAGE_COUNT_WIDTH -
     MODEL_USAGE_PCT_WIDTH -
     2
@@ -183,9 +206,12 @@ export function renderDisplay(
   } = data
   const usesAiCredits = billingUnit === 'ai-credits'
   const usageTitle = usesAiCredits ? 'AI Credit Usage' : 'Premium Request Usage'
-  const emptyUsage = usesAiCredits
-    ? 'No AI credits used yet.'
-    : 'No premium requests used yet.'
+  const emptyUsage =
+    width < 40
+      ? 'No usage yet.'
+      : usesAiCredits
+        ? 'No AI credits used yet.'
+        : 'No premium requests used yet.'
 
   const percentage = limit === null ? null : (totalUsage / limit) * 100
   const monthProgress = currentDay / daysInMonth
@@ -196,13 +222,19 @@ export function renderDisplay(
     month: 'long',
     timeZone: 'UTC',
   })
+  const nextMonthShort = nextResetDate.toLocaleString('en-US', {
+    month: 'short',
+    timeZone: 'UTC',
+  })
   const nextYear = nextResetDate.getUTCFullYear()
   const timeUntilReset =
     width >= 60 ? formatTimeUntilReset(now, nextResetDate) : null
   const resetText =
-    width < 60
-      ? `Resets: ${nextMonthName} 1, ${nextYear}`
-      : `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`
+    width < 40
+      ? `Reset: ${nextMonthShort} 1`
+      : width < 60
+        ? `Resets: ${nextMonthName} 1, ${nextYear}`
+        : `Resets:   ${nextMonthName} 1, ${nextYear} at 00:00 UTC`
   const resetLabel = styleText(color === 'green' ? 'dim' : color, resetText)
 
   const center = (text: string) => printBoxLine(text, boxInnerWidth)
@@ -221,16 +253,12 @@ export function renderDisplay(
     for (const [model, modelCount] of modelsSorted) {
       if (modelCount === 0) continue
 
-      let modelDisplay = model
-      if (model.length > MODEL_NAME_WIDTH) {
-        modelDisplay = model.substring(0, MODEL_NAME_WIDTH - 1) + '…'
-      }
-
+      const modelDisplay = fitText(model, modelNameWidth)
       const amount = formatUsageAmount(modelCount).padStart(
         MODEL_USAGE_COUNT_WIDTH,
       )
       if (limit === null || smallBarWidth < 1) {
-        lines.push(left(`${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${amount}`))
+        lines.push(left(`${modelDisplay.padEnd(modelNameWidth)}${amount}`))
         continue
       }
 
@@ -242,16 +270,20 @@ export function renderDisplay(
         smallBarWidth,
         getModelColor(modelPctValue),
       )
-      const modelLine = `${modelDisplay.padEnd(MODEL_NAME_WIDTH)}${amount} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
+      const modelLine = `${modelDisplay.padEnd(modelNameWidth)}${amount} ${smallBar} ${modelPct.padStart(MODEL_USAGE_PCT_WIDTH)}`
       lines.push(left(modelLine))
     }
     modelLines = lines.join('\n')
   }
 
+  const totalLabel = formatUsageAmount(totalUsage)
+  const limitLabel = limit === null ? null : formatUsageAmount(limit)
   const overall =
-    limit === null || percentage === null
-      ? `Overall:  ${styleText('bold', formatUsageAmount(totalUsage))}${dim(' AI credits')}`
-      : `Overall:  ${styleText('bold', formatUsageAmount(totalUsage))}${dim('/' + limit + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`
+    width < 40
+      ? `Used: ${styleText('bold', totalLabel)}${limitLabel === null ? '' : dim('/' + limitLabel)}`
+      : limitLabel === null || percentage === null
+        ? `Overall:  ${styleText('bold', totalLabel)}${dim(' AI credits')}`
+        : `Overall:  ${styleText('bold', totalLabel)}${dim('/' + limitLabel + ' (')}${styleText([color, 'bold'], percentage.toFixed(1) + '%')}${dim(')')}`
   const usage =
     limit === null
       ? []
